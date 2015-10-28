@@ -1,0 +1,68 @@
+diff --git a/app/config/security.yml b/app/config/security.yml
+index 8c88bcb..0b6a1e5 100644
+--- a/app/config/security.yml
++++ b/app/config/security.yml
+@@ -4,8 +4,8 @@ security:
+ 
+     # http://symfony.com/doc/current/book/security.html#where-do-users-come-from-user-providers
+     providers:
+-        in_memory:
+-            memory: ~
++        hipsters:
++            id: hipster_user_provider
+ 
+     firewalls:
+         # disables authentication for assets and the profiler, adapt it according to your needs
+@@ -16,6 +16,8 @@ security:
+         main:
+             anonymous: ~
+             logout: ~
++            # this is optional, since there is only one provider above
++            provider: hipsters
+             guard:
+                 authenticators: [form_login_authenticator]
+             # activate different ways to authenticate
+diff --git a/app/config/services.yml b/app/config/services.yml
+index cadc38c..a8bbffc 100644
+--- a/app/config/services.yml
++++ b/app/config/services.yml
+@@ -2,3 +2,6 @@ services:
+     form_login_authenticator:
+         class: AppBundle\Security\FormLoginAuthenticator
+         autowire: true
++
++    hipster_user_provider:
++        class: AppBundle\Security\HipsterUserProvider
+diff --git a/src/AppBundle/Security/HipsterUserProvider.php b/src/AppBundle/Security/HipsterUserProvider.php
+new file mode 100644
+index 0000000..f4e9827
+--- /dev/null
++++ b/src/AppBundle/Security/HipsterUserProvider.php
+@@ -0,0 +1,26 @@
++<?php
++
++namespace AppBundle\Security;
++
++use AppBundle\Entity\User;
++use Symfony\Component\Security\Core\User\UserInterface;
++use Symfony\Component\Security\Core\User\UserProviderInterface;
++
++class HipsterUserProvider implements UserProviderInterface
++{
++    public function loadUserByUsername($username)
++    {
++        return new User($username);
++    }
++
++    public function refreshUser(UserInterface $user)
++    {
++        return $user;
++    }
++
++    public function supportsClass($class)
++    {
++        return $class == 'AppBundle\Entity\User';
++    }
++
++}
+\ No newline at end of file
