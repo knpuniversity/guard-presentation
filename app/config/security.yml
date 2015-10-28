@@ -15,6 +15,7 @@ security:
 
         main:
             anonymous: ~
+            logout: ~
             # this is optional, since there is only one provider above
             provider: hipsters
             guard:
