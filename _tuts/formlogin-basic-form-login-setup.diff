@@ -1,0 +1,224 @@
+diff --git a/app/Resources/views/security/login.html.twig b/app/Resources/views/security/login.html.twig
+new file mode 100644
+index 0000000..f95bf17
+--- /dev/null
++++ b/app/Resources/views/security/login.html.twig
+@@ -0,0 +1,18 @@
++{% extends 'base.html.twig' %}
++
++{% block body %}
++    <form action="{{ path('security_login_check') }}" method="post">
++        <div>
++            <label for="username">Username</label>
++            <input type="text" id="username" name="_username" value="" />
++        </div>
++
++        <div>
++            <label for="password">Password:</label>
++            <input type="password" id="password" name="_password" />
++        </div>
++
++        <br/>
++        <button type="submit">Login</button>
++    </form>
++{% endblock %}
+diff --git a/app/config/security.yml b/app/config/security.yml
+index 8072372..8c88bcb 100644
+--- a/app/config/security.yml
++++ b/app/config/security.yml
+@@ -15,6 +15,9 @@ security:
+ 
+         main:
+             anonymous: ~
++            logout: ~
++            guard:
++                authenticators: [form_login_authenticator]
+             # activate different ways to authenticate
+ 
+             # http_basic: ~
+diff --git a/app/config/services.yml b/app/config/services.yml
+index 5c76fc5..cadc38c 100644
+--- a/app/config/services.yml
++++ b/app/config/services.yml
+@@ -1,9 +1,4 @@
+-# Learn more about services, parameters and containers at
+-# http://symfony.com/doc/current/book/service_container.html
+-parameters:
+-#    parameter_name: value
+-
+ services:
+-#    service_name:
+-#        class: AppBundle\Directory\ClassName
+-#        arguments: ["@another_service_name", "plain_value", "%parameter_name%"]
++    form_login_authenticator:
++        class: AppBundle\Security\FormLoginAuthenticator
++        autowire: true
+diff --git a/src/AppBundle/Controller/SecurityController.php b/src/AppBundle/Controller/SecurityController.php
+new file mode 100644
+index 0000000..743a289
+--- /dev/null
++++ b/src/AppBundle/Controller/SecurityController.php
+@@ -0,0 +1,33 @@
++<?php
++
++namespace AppBundle\Controller;
++
++use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
++use Symfony\Bundle\FrameworkBundle\Controller\Controller;
++
++class SecurityController extends Controller
++{
++    /**
++     * @Route("/login", name="security_login")
++     */
++    public function loginAction()
++    {
++        return $this->render('security/login.html.twig');
++    }
++
++    /**
++     * @Route("/login_check", name="security_login_check")
++     */
++    public function loginCheckAction()
++    {
++        // will never be executed
++    }
++
++    /**
++     * @Route("/logout", name="logout")
++     */
++    public function logoutAction()
++    {
++
++    }
++}
+diff --git a/src/AppBundle/Entity/User.php b/src/AppBundle/Entity/User.php
+new file mode 100644
+index 0000000..378674c
+--- /dev/null
++++ b/src/AppBundle/Entity/User.php
+@@ -0,0 +1,39 @@
++<?php
++
++namespace AppBundle\Entity;
++
++use Symfony\Component\Security\Core\Role\Role;
++use Symfony\Component\Security\Core\User\UserInterface;
++
++class User implements UserInterface
++{
++    private $username;
++
++    public function __construct($username)
++    {
++        $this->username = $username;
++    }
++
++    public function getUsername()
++    {
++        return $this->username;
++    }
++
++    public function getPassword()
++    {
++        return;
++    }
++
++    public function getRoles()
++    {
++        return ['ROLE_USER'];
++    }
++
++    public function getSalt()
++    {
++    }
++
++    public function eraseCredentials()
++    {
++    }
++}
+\ No newline at end of file
+diff --git a/src/AppBundle/Security/FormLoginAuthenticator.php b/src/AppBundle/Security/FormLoginAuthenticator.php
+new file mode 100644
+index 0000000..caba145
+--- /dev/null
++++ b/src/AppBundle/Security/FormLoginAuthenticator.php
+@@ -0,0 +1,78 @@
++<?php
++
++namespace AppBundle\Security;
++
++use AppBundle\Entity\User;
++use Symfony\Component\HttpFoundation\RedirectResponse;
++use Symfony\Component\HttpFoundation\Request;
++use Symfony\Component\HttpFoundation\Response;
++use Symfony\Component\Routing\RouterInterface;
++use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
++use Symfony\Component\Security\Core\Exception\AuthenticationException;
++use Symfony\Component\Security\Core\Exception\BadCredentialsException;
++use Symfony\Component\Security\Core\User\UserInterface;
++use Symfony\Component\Security\Core\User\UserProviderInterface;
++use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
++
++class FormLoginAuthenticator extends AbstractGuardAuthenticator
++{
++    private $router;
++
++    public function __construct(RouterInterface $router)
++    {
++        $this->router = $router;
++    }
++
++    public function getCredentials(Request $request)
++    {
++        if ($request->getPathInfo() != '/login_check') {
++            return;
++        }
++
++        return [
++            'username' => $request->request->get('_username'),
++            'password' => $request->request->get('_password'),
++        ];
++    }
++
++    public function getUser($credentials, UserProviderInterface $userProvider)
++    {
++        $username = $credentials['username'];
++
++        return new User($username);
++    }
++
++    public function checkCredentials($credentials, UserInterface $user)
++    {
++        $password = $credentials['password'];
++        if ($password != 'TheMagicWord') {
++            throw new BadCredentialsException();
++        }
++    }
++
++    public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
++    {
++        $url = $this->router->generate('security_login');
++
++        return new RedirectResponse($url);
++    }
++
++    public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
++    {
++        $url = $this->router->generate('homepage');
++
++        return new RedirectResponse($url);
++    }
++
++    public function start(Request $request, AuthenticationException $authException = null)
++    {
++        $url = $this->router->generate('security_login');
++
++        return new RedirectResponse($url);
++    }
++
++    public function supportsRememberMe()
++    {
++        return true;
++    }
++}
