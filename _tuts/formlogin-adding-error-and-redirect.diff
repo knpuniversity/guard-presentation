@@ -1,0 +1,66 @@
+diff --git a/app/Resources/views/security/login.html.twig b/app/Resources/views/security/login.html.twig
+index f95bf17..13520f8 100644
+--- a/app/Resources/views/security/login.html.twig
++++ b/app/Resources/views/security/login.html.twig
+@@ -1,6 +1,10 @@
+ {% extends 'base.html.twig' %}
+ 
+ {% block body %}
++    {% if error %}
++        {{ error.messageKey }}
++    {% endif %}
++
+     <form action="{{ path('security_login_check') }}" method="post">
+         <div>
+             <label for="username">Username</label>
+diff --git a/src/AppBundle/Controller/SecurityController.php b/src/AppBundle/Controller/SecurityController.php
+index 743a289..80c69f3 100644
+--- a/src/AppBundle/Controller/SecurityController.php
++++ b/src/AppBundle/Controller/SecurityController.php
+@@ -4,15 +4,18 @@ namespace AppBundle\Controller;
+ 
+ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
++use Symfony\Component\HttpFoundation\Request;
+ 
+ class SecurityController extends Controller
+ {
+     /**
+      * @Route("/login", name="security_login")
+      */
+-    public function loginAction()
++    public function loginAction(Request $request)
+     {
+-        return $this->render('security/login.html.twig');
++        return $this->render('security/login.html.twig', [
++            'error' => $request->getSession()->get('_security.last_error')
++        ]);
+     }
+ 
+     /**
+diff --git a/src/AppBundle/Security/FormLoginAuthenticator.php b/src/AppBundle/Security/FormLoginAuthenticator.php
+index caba145..cacdd03 100644
+--- a/src/AppBundle/Security/FormLoginAuthenticator.php
++++ b/src/AppBundle/Security/FormLoginAuthenticator.php
+@@ -52,6 +52,7 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
+ 
+     public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
+     {
++        $request->getSession()->set('_security.last_error', $exception);
+         $url = $this->router->generate('security_login');
+ 
+         return new RedirectResponse($url);
+@@ -59,7 +60,12 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
+ 
+     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
+     {
+-        $url = $this->router->generate('homepage');
++        $url = $request->getSession()
++            ->get('_security.'.$providerKey.'.target_path');
++
++        if (!$url) {
++            $url = $this->router->generate('homepage');
++        }
+ 
+         return new RedirectResponse($url);
+     }
