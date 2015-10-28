@@ -2,3 +2,6 @@ services:
     form_login_authenticator:
         class: AppBundle\Security\FormLoginAuthenticator
         autowire: true
+
+    hipster_user_provider:
+        class: AppBundle\Security\HipsterUserProvider
