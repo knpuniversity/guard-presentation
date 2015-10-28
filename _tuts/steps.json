@@ -1,0 +1,30 @@
+{
+    "steps": [
+        {
+            "id": "start",
+            "name": "start",
+            "description": null
+        },
+        {
+            "id": "formlogin-basic-form-login-setup",
+            "name": "FormLogin: basic form login setup",
+            "description": null
+        },
+        {
+            "id": "userprovider-very-simpler-user-provider",
+            "name": "UserProvider: Very simpler user provider",
+            "description": null
+        },
+        {
+            "id": "formlogin-adding-error-and-redirect",
+            "name": "FormLogin: Adding error and redirect",
+            "description": null
+        },
+        {
+            "id": "formlogin-abstractformloginauthenticator",
+            "name": "FormLogin: AbstractFormLoginAuthenticator",
+            "description": null
+        }
+    ],
+    "sha": "e820b410e1ae96a1485033354eb1c8b0e4b14589"
+}

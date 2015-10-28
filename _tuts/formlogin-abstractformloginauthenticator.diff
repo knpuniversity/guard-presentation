@@ -1,0 +1,71 @@
+diff --git a/src/AppBundle/Controller/SecurityController.php b/src/AppBundle/Controller/SecurityController.php
+index 80c69f3..fba81ec 100644
+--- a/src/AppBundle/Controller/SecurityController.php
++++ b/src/AppBundle/Controller/SecurityController.php
+@@ -13,8 +13,10 @@ class SecurityController extends Controller
+      */
+     public function loginAction(Request $request)
+     {
++        $utils = $this->get('security.authentication_utils');
++
+         return $this->render('security/login.html.twig', [
+-            'error' => $request->getSession()->get('_security.last_error')
++            'error' => $utils->getLastAuthenticationError(),
+         ]);
+     }
+ 
+diff --git a/src/AppBundle/Security/FormLoginAuthenticator.php b/src/AppBundle/Security/FormLoginAuthenticator.php
+index cacdd03..08d3fc6 100644
+--- a/src/AppBundle/Security/FormLoginAuthenticator.php
++++ b/src/AppBundle/Security/FormLoginAuthenticator.php
+@@ -13,8 +13,9 @@ use Symfony\Component\Security\Core\Exception\BadCredentialsException;
+ use Symfony\Component\Security\Core\User\UserInterface;
+ use Symfony\Component\Security\Core\User\UserProviderInterface;
+ use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
++use Symfony\Component\Security\Guard\Authenticator\AbstractFormLoginAuthenticator;
+ 
+-class FormLoginAuthenticator extends AbstractGuardAuthenticator
++class FormLoginAuthenticator extends AbstractFormLoginAuthenticator
+ {
+     private $router;
+ 
+@@ -50,35 +51,15 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
+         }
+     }
+ 
+-    public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
++    protected function getLoginUrl()
+     {
+-        $request->getSession()->set('_security.last_error', $exception);
+-        $url = $this->router->generate('security_login');
+-
+-        return new RedirectResponse($url);
++        return $this->router->generate('security_login');
+     }
+ 
+-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
++    protected function getDefaultSuccessRedirectUrl()
+     {
+-        $url = $request->getSession()
+-            ->get('_security.'.$providerKey.'.target_path');
+-
+-        if (!$url) {
+-            $url = $this->router->generate('homepage');
+-        }
+-
+-        return new RedirectResponse($url);
++        return $this->router->generate('homepage');
+     }
+ 
+-    public function start(Request $request, AuthenticationException $authException = null)
+-    {
+-        $url = $this->router->generate('security_login');
+ 
+-        return new RedirectResponse($url);
+-    }
+-
+-    public function supportsRememberMe()
+-    {
+-        return true;
+-    }
+ }
