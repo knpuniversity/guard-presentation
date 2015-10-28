@@ -52,6 +52,7 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
     {
+        $request->getSession()->set('_security.last_error', $exception);
         $url = $this->router->generate('security_login');
 
         return new RedirectResponse($url);
@@ -59,7 +60,12 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
-        $url = $this->router->generate('homepage');
+        $url = $request->getSession()
+            ->get('_security.'.$providerKey.'.target_path');
+
+        if (!$url) {
+            $url = $this->router->generate('homepage');
+        }
 
         return new RedirectResponse($url);
     }
