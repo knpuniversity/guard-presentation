@@ -8,7 +8,7 @@ use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
-class HipsterUserProvider implements UserProviderInterface
+class SpookyUserProvider implements UserProviderInterface
 {
     private $em;
 
