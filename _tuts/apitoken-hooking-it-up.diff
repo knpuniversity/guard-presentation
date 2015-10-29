@@ -1,0 +1,137 @@
+diff --git a/app/config/security.yml b/app/config/security.yml
+index 0b6a1e5..952f31d 100644
+--- a/app/config/security.yml
++++ b/app/config/security.yml
+@@ -19,7 +19,10 @@ security:
+             # this is optional, since there is only one provider above
+             provider: hipsters
+             guard:
+-                authenticators: [form_login_authenticator]
++                authenticators:
++                    - form_login_authenticator
++                    - api_token_authenticator
++                entry_point: form_login_authenticator
+             # activate different ways to authenticate
+ 
+             # http_basic: ~
+diff --git a/app/config/services.yml b/app/config/services.yml
+index de655c1..1476508 100644
+--- a/app/config/services.yml
++++ b/app/config/services.yml
+@@ -5,6 +5,11 @@ services:
+             - '@router'
+             - '@doctrine.orm.entity_manager'
+ 
++    api_token_authenticator:
++        class: AppBundle\Security\ApiTokenAuthenticator
++        arguments:
++            - '@doctrine.orm.entity_manager'
++
+     hipster_user_provider:
+         class: AppBundle\Security\HipsterUserProvider
+         arguments:
+diff --git a/load.php b/load.php
+index e5f747d..af13506 100644
+--- a/load.php
++++ b/load.php
+@@ -13,7 +13,7 @@ $container = $kernel->getContainer();
+ $em = $container->get('doctrine.orm.entity_manager');
+ 
+ $em->createQuery('DELETE FROM AppBundle:User')->execute();
+-$user = new User('weaverryan', 'ryan@knpuniversity.com');
++$user = new User('weaverryan', 'ryan@knpuniversity.com', 'abcd1234');
+ 
+ $em->persist($user);
+ $em->flush();
+diff --git a/src/AppBundle/Entity/User.php b/src/AppBundle/Entity/User.php
+index a4c3efd..7783084 100644
+--- a/src/AppBundle/Entity/User.php
++++ b/src/AppBundle/Entity/User.php
+@@ -29,9 +29,15 @@ class User implements UserInterface
+      */
+     private $email;
+ 
+-    public function __construct($username, $email)
++    /**
++     * @ORM\Column(type="string")
++     */
++    private $apiToken;
++
++    public function __construct($username, $apiToken, $email)
+     {
+         $this->username = $username;
++        $this->apiToken = $apiToken;
+         $this->email = $email;
+     }
+ 
+diff --git a/src/AppBundle/Security/ApiTokenAuthenticator.php b/src/AppBundle/Security/ApiTokenAuthenticator.php
+new file mode 100644
+index 0000000..948b8b2
+--- /dev/null
++++ b/src/AppBundle/Security/ApiTokenAuthenticator.php
+@@ -0,0 +1,65 @@
++<?php
++
++namespace AppBundle\Security;
++
++use Doctrine\ORM\EntityManager;
++use Symfony\Component\HttpFoundation\JsonResponse;
++use Symfony\Component\HttpFoundation\Request;
++use Symfony\Component\HttpFoundation\Response;
++use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
++use Symfony\Component\Security\Core\Exception\AuthenticationException;
++use Symfony\Component\Security\Core\User\UserInterface;
++use Symfony\Component\Security\Core\User\UserProviderInterface;
++use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
++
++class ApiTokenAuthenticator extends AbstractGuardAuthenticator
++{
++    private $em;
++
++    public function __construct(EntityManager $em)
++    {
++        $this->em = $em;
++    }
++
++    public function getCredentials(Request $request)
++    {
++        return $request->headers->get('X-API-TOKEN');
++    }
++
++    public function getUser($credentials, UserProviderInterface $userProvider)
++    {
++        $apiToken = $credentials;
++
++        return $this->em
++            ->getRepository('AppBundle:User')
++            ->findOneBy(['apiToken' => $apiToken]);
++    }
++
++    public function checkCredentials($credentials, UserInterface $user)
++    {
++        // no credentials to check
++        return;
++    }
++
++    public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
++    {
++        return new JsonResponse([
++            'message' => $exception->getMessageKey()
++        ], 401);
++    }
++
++    public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
++    {
++        // let the request continue to the controller
++        return;
++    }
++
++    public function start(Request $request, AuthenticationException $authException = null)
++    {
++        throw new \Exception('This is not used in our app');
++    }
++
++    public function supportsRememberMe()
++    {
++    }
++}
