@@ -12,7 +12,7 @@ $container = $kernel->getContainer();
 
 $em = $container->get('doctrine.orm.entity_manager');
 
-$user = new User('weaverryan');
+$user = new User('weaverryan', 'ryan@knpuniversity.com');
 $em->persist($user);
 $em->flush();
 
