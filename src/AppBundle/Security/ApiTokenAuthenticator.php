@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
@@ -30,9 +31,17 @@ class ApiTokenAuthenticator extends AbstractGuardAuthenticator
     {
         $apiToken = $credentials;
 
-        return $this->em
+        $user = $this->em
             ->getRepository('AppBundle:User')
             ->findOneBy(['apiToken' => $apiToken]);
+
+        if (!$user) {
+            throw new CustomUserMessageAuthenticationException(
+                'This is a really un-cool api token.'
+            );
+        }
+
+        return $user;
     }
 
     public function checkCredentials($credentials, UserInterface $user)
