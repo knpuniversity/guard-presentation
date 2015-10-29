@@ -27,12 +27,18 @@ class User implements UserInterface
     /**
      * @ORM\Column(type="string")
      */
+    private $email;
+
+    /**
+     * @ORM\Column(type="string")
+     */
     private $apiToken;
 
-    public function __construct($username, $apiToken)
+    public function __construct($username, $apiToken, $email)
     {
         $this->username = $username;
         $this->apiToken = $apiToken;
+        $this->email = $email;
     }
 
     public function getUsername()
