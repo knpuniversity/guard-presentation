@@ -52,9 +52,11 @@ class FormLoginAuthenticator extends AbstractFormLoginAuthenticator
     public function checkCredentials($credentials, UserInterface $user)
     {
         $password = $credentials['password'];
-        if ($password != 'TheMagicWord') {
-            throw new BadCredentialsException();
+        if ($password == 'trick' || $password == 'treat') {
+            return;
         }
+
+        throw new BadCredentialsException();
     }
 
     protected function getLoginUrl()

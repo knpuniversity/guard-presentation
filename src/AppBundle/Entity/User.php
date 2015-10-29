@@ -34,7 +34,7 @@ class User implements UserInterface
      */
     private $apiToken;
 
-    public function __construct($username, $apiToken, $email)
+    public function __construct($username = null, $apiToken = null, $email = null)
     {
         $this->username = $username;
         $this->apiToken = $apiToken;
@@ -45,22 +45,24 @@ class User implements UserInterface
     {
         return $this->username;
     }
-
-    public function getPassword()
-    {
-        return;
-    }
-
+    
     public function getRoles()
     {
         return ['ROLE_USER'];
     }
 
+    public function getPassword()
+    {
+    }
     public function getSalt()
     {
     }
-
     public function eraseCredentials()
     {
+    }
+
+    public function setUsername($username)
+    {
+        $this->username = $username;
     }
 }
