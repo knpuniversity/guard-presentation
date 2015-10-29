@@ -44,7 +44,7 @@ class ApiTokenAuthenticator extends AbstractGuardAuthenticator
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
     {
         return new JsonResponse([
-            'message' => 'That API token was not normcore'
+            'message' => $exception->getMessageKey()
         ], 401);
     }
 
