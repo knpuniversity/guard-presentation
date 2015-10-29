@@ -9,7 +9,7 @@ class User implements UserInterface
 {
     private $username;
 
-    public function __construct($username)
+    public function __construct($username = null)
     {
         $this->username = $username;
     }
@@ -18,22 +18,24 @@ class User implements UserInterface
     {
         return $this->username;
     }
-
-    public function getPassword()
-    {
-        return;
-    }
-
+    
     public function getRoles()
     {
         return ['ROLE_USER'];
     }
 
+    public function getPassword()
+    {
+    }
     public function getSalt()
     {
     }
-
     public function eraseCredentials()
     {
+    }
+
+    public function setUsername($username)
+    {
+        $this->username = $username;
     }
 }
