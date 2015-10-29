@@ -12,7 +12,10 @@ $container = $kernel->getContainer();
 
 $em = $container->get('doctrine.orm.entity_manager');
 
+$em->createQuery('DELETE FROM AppBundle:User')->execute();
+
 $user = new User('weaverryan', 'abcd1234');
+
 $em->persist($user);
 $em->flush();
 
