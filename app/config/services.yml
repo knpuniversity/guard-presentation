@@ -3,5 +3,5 @@ services:
         class: AppBundle\Security\FormLoginAuthenticator
         autowire: true
 
-    hipster_user_provider:
-        class: AppBundle\Security\HipsterUserProvider
+    spooky_user_provider:
+        class: AppBundle\Security\SpookyUserProvider

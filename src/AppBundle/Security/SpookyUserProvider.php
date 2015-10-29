@@ -6,11 +6,15 @@ use AppBundle\Entity\User;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
-class HipsterUserProvider implements UserProviderInterface
+class SpookyUserProvider implements UserProviderInterface
 {
     public function loadUserByUsername($username)
     {
-        return new User($username);
+        // "load" the user - e.g. load from the db
+        $user = new User();
+        $user->setUsername($username);
+
+        return $user;
     }
 
     public function refreshUser(UserInterface $user)
@@ -22,5 +26,4 @@ class HipsterUserProvider implements UserProviderInterface
     {
         return $class == 'AppBundle\Entity\User';
     }
-
 }
