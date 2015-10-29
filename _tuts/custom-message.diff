@@ -1,0 +1,31 @@
+diff --git a/src/AppBundle/Security/ApiTokenAuthenticator.php b/src/AppBundle/Security/ApiTokenAuthenticator.php
+index 948b8b2..3b64b26 100644
+--- a/src/AppBundle/Security/ApiTokenAuthenticator.php
++++ b/src/AppBundle/Security/ApiTokenAuthenticator.php
+@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
+ use Symfony\Component\HttpFoundation\Response;
+ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+ use Symfony\Component\Security\Core\Exception\AuthenticationException;
++use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
+ use Symfony\Component\Security\Core\User\UserInterface;
+ use Symfony\Component\Security\Core\User\UserProviderInterface;
+ use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
+@@ -30,9 +31,17 @@ class ApiTokenAuthenticator extends AbstractGuardAuthenticator
+     {
+         $apiToken = $credentials;
+ 
+-        return $this->em
++        $user = $this->em
+             ->getRepository('AppBundle:User')
+             ->findOneBy(['apiToken' => $apiToken]);
++
++        if (!$user) {
++            throw new CustomUserMessageAuthenticationException(
++                'That API token is not normcore'
++            );
++        }
++
++        return $user;
+     }
+ 
+     public function checkCredentials($credentials, UserInterface $user)
