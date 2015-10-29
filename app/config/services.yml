@@ -5,7 +5,12 @@ services:
             - '@router'
             - '@doctrine.orm.entity_manager'
 
+<<<<<<< HEAD
     hipster_user_provider:
         class: AppBundle\Security\HipsterUserProvider
         arguments:
             - '@doctrine.orm.entity_manager'
+=======
+    spooky_user_provider:
+        class: AppBundle\Security\SpookyUserProvider
+>>>>>>> _tuts/master/formlogin-abstractformloginauthenticator

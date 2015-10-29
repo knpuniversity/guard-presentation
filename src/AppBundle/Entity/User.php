@@ -29,7 +29,7 @@ class User implements UserInterface
      */
     private $email;
 
-    public function __construct($username, $email)
+    public function __construct($username = null, $email = null)
     {
         $this->username = $username;
         $this->email = $email;
@@ -39,22 +39,24 @@ class User implements UserInterface
     {
         return $this->username;
     }
-
-    public function getPassword()
-    {
-        return;
-    }
-
+    
     public function getRoles()
     {
         return ['ROLE_USER'];
     }
 
+    public function getPassword()
+    {
+    }
     public function getSalt()
     {
     }
-
     public function eraseCredentials()
     {
+    }
+
+    public function setUsername($username)
+    {
+        $this->username = $username;
     }
 }
