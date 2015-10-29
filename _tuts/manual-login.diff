@@ -1,0 +1,110 @@
+diff --git a/app/Resources/views/registration/register.html.twig b/app/Resources/views/registration/register.html.twig
+new file mode 100644
+index 0000000..20b1412
+--- /dev/null
++++ b/app/Resources/views/registration/register.html.twig
+@@ -0,0 +1,9 @@
++{% extends 'base.html.twig' %}
++
++{% block body %}
++    {{ form_start(form) }}
++        {{ form_widget(form) }}
++
++        <button type="submit">Register</button>
++    {{ form_end(form) }}
++{% endblock %}
+diff --git a/src/AppBundle/Controller/RegistrationController.php b/src/AppBundle/Controller/RegistrationController.php
+new file mode 100644
+index 0000000..e0a97f2
+--- /dev/null
++++ b/src/AppBundle/Controller/RegistrationController.php
+@@ -0,0 +1,48 @@
++<?php
++
++namespace AppBundle\Controller;
++
++use AppBundle\Entity\User;
++use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
++use Symfony\Bundle\FrameworkBundle\Controller\Controller;
++use Symfony\Component\HttpFoundation\Request;
++
++class RegistrationController extends Controller
++{
++    /**
++     * @Route("/register")
++     */
++    public function registerAction(Request $request)
++    {
++        $user = new User();
++        $form = $this->createFormBuilder($user)
++            ->add('username')
++            ->add('email')
++            ->getForm();
++
++        $form->handleRequest($request);
++        if ($form->isValid()) {
++            $user->setApiToken('0000');
++
++            $em = $this->getDoctrine()->getManager();
++            $em->persist($user);
++            $em->flush();
++
++            $this->container
++                ->get('security.authentication.guard_handler')
++                ->authenticateUserAndHandleSuccess(
++                    $user,
++                    $request,
++                    $this->get('form_login_authenticator'),
++                    // the name of your firewall
++                    'main'
++                );
++
++            return $this->redirectToRoute('secure_page');
++        }
++
++        return $this->render('registration/register.html.twig', [
++            'form' => $form->createView()
++        ]);
++    }
++}
+\ No newline at end of file
+diff --git a/src/AppBundle/Entity/User.php b/src/AppBundle/Entity/User.php
+index 7783084..56f60ad 100644
+--- a/src/AppBundle/Entity/User.php
++++ b/src/AppBundle/Entity/User.php
+@@ -34,7 +34,7 @@ class User implements UserInterface
+      */
+     private $apiToken;
+ 
+-    public function __construct($username, $apiToken, $email)
++    public function __construct($username = null, $apiToken = null, $email = null)
+     {
+         $this->username = $username;
+         $this->apiToken = $apiToken;
+@@ -63,4 +63,26 @@ class User implements UserInterface
+     public function eraseCredentials()
+     {
+     }
++
++    public function setUsername($username)
++    {
++        $this->username = $username;
++    }
++
++    public function setEmail($email)
++    {
++        $this->email = $email;
++    }
++
++    public function setApiToken($apiToken)
++    {
++        $this->apiToken = $apiToken;
++    }
++
++    public function getEmail()
++    {
++        return $this->email;
++    }
++
++
+ }
