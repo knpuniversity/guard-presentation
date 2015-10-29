@@ -3,6 +3,7 @@
 namespace AppBundle\Security;
 
 use AppBundle\Entity\User;
+use Doctrine\ORM\EntityManager;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,9 +20,12 @@ class FormLoginAuthenticator extends AbstractFormLoginAuthenticator
 {
     private $router;
 
-    public function __construct(RouterInterface $router)
+    private $em;
+
+    public function __construct(RouterInterface $router, EntityManager $em)
     {
         $this->router = $router;
+        $this->em = $em;
     }
 
     public function getCredentials(Request $request)
@@ -40,7 +44,9 @@ class FormLoginAuthenticator extends AbstractFormLoginAuthenticator
     {
         $username = $credentials['username'];
 
-        return new User($username);
+        return $this->em
+            ->getRepository('AppBundle:User')
+            ->findOneBy(['username' => $username]);
     }
 
     public function checkCredentials($credentials, UserInterface $user)

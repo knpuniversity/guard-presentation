@@ -1,7 +1,11 @@
 services:
     form_login_authenticator:
         class: AppBundle\Security\FormLoginAuthenticator
-        autowire: true
+        arguments:
+            - '@router'
+            - '@doctrine.orm.entity_manager'
 
     hipster_user_provider:
         class: AppBundle\Security\HipsterUserProvider
+        arguments:
+            - '@doctrine.orm.entity_manager'
