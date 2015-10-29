@@ -34,7 +34,7 @@ class User implements UserInterface
      */
     private $apiToken;
 
-    public function __construct($username, $apiToken, $email)
+    public function __construct($username = null, $apiToken = null, $email = null)
     {
         $this->username = $username;
         $this->apiToken = $apiToken;
@@ -63,4 +63,26 @@ class User implements UserInterface
     public function eraseCredentials()
     {
     }
+
+    public function setUsername($username)
+    {
+        $this->username = $username;
+    }
+
+    public function setEmail($email)
+    {
+        $this->email = $email;
+    }
+
+    public function setApiToken($apiToken)
+    {
+        $this->apiToken = $apiToken;
+    }
+
+    public function getEmail()
+    {
+        return $this->email;
+    }
+
+
 }
