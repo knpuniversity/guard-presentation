@@ -1,0 +1,176 @@
+diff --git a/app/config/services.yml b/app/config/services.yml
+index a8bbffc..de655c1 100644
+--- a/app/config/services.yml
++++ b/app/config/services.yml
+@@ -1,7 +1,11 @@
+ services:
+     form_login_authenticator:
+         class: AppBundle\Security\FormLoginAuthenticator
+-        autowire: true
++        arguments:
++            - '@router'
++            - '@doctrine.orm.entity_manager'
+ 
+     hipster_user_provider:
+         class: AppBundle\Security\HipsterUserProvider
++        arguments:
++            - '@doctrine.orm.entity_manager'
+diff --git a/load.php b/load.php
+new file mode 100644
+index 0000000..070504d
+--- /dev/null
++++ b/load.php
+@@ -0,0 +1,18 @@
++<?php
++
++use AppBundle\Entity\User;
++
++$loader = require __DIR__.'/app/autoload.php';
++include_once __DIR__.'/app/bootstrap.php.cache';
++
++$kernel = new AppKernel('dev', true);
++$kernel->boot();
++
++$container = $kernel->getContainer();
++
++$em = $container->get('doctrine.orm.entity_manager');
++
++$user = new User('weaverryan', 'ryan@knpuniversity.com');
++$em->persist($user);
++$em->flush();
++
+diff --git a/src/AppBundle/Entity/User.php b/src/AppBundle/Entity/User.php
+index 378674c..a4c3efd 100644
+--- a/src/AppBundle/Entity/User.php
++++ b/src/AppBundle/Entity/User.php
+@@ -4,14 +4,35 @@ namespace AppBundle\Entity;
+ 
+ use Symfony\Component\Security\Core\Role\Role;
+ use Symfony\Component\Security\Core\User\UserInterface;
++use Doctrine\ORM\Mapping as ORM;
+ 
++/**
++ * @ORM\Entity
++ * @ORM\Table(name="user")
++ */
+ class User implements UserInterface
+ {
++    /**
++     * @ORM\Id
++     * @ORM\GeneratedValue(strategy="AUTO")
++     * @ORM\Column(type="integer")
++     */
++    private $id;
++
++    /**
++     * @ORM\Column(type="string")
++     */
+     private $username;
+ 
+-    public function __construct($username)
++    /**
++     * @ORM\Column(type="string")
++     */
++    private $email;
++
++    public function __construct($username, $email)
+     {
+         $this->username = $username;
++        $this->email = $email;
+     }
+ 
+     public function getUsername()
+@@ -36,4 +57,4 @@ class User implements UserInterface
+     public function eraseCredentials()
+     {
+     }
+-}
+\ No newline at end of file
++}
+diff --git a/src/AppBundle/Security/FormLoginAuthenticator.php b/src/AppBundle/Security/FormLoginAuthenticator.php
+index 08d3fc6..daf8bf8 100644
+--- a/src/AppBundle/Security/FormLoginAuthenticator.php
++++ b/src/AppBundle/Security/FormLoginAuthenticator.php
+@@ -3,6 +3,7 @@
+ namespace AppBundle\Security;
+ 
+ use AppBundle\Entity\User;
++use Doctrine\ORM\EntityManager;
+ use Symfony\Component\HttpFoundation\RedirectResponse;
+ use Symfony\Component\HttpFoundation\Request;
+ use Symfony\Component\HttpFoundation\Response;
+@@ -19,9 +20,12 @@ class FormLoginAuthenticator extends AbstractFormLoginAuthenticator
+ {
+     private $router;
+ 
+-    public function __construct(RouterInterface $router)
++    private $em;
++
++    public function __construct(RouterInterface $router, EntityManager $em)
+     {
+         $this->router = $router;
++        $this->em = $em;
+     }
+ 
+     public function getCredentials(Request $request)
+@@ -40,7 +44,9 @@ class FormLoginAuthenticator extends AbstractFormLoginAuthenticator
+     {
+         $username = $credentials['username'];
+ 
+-        return new User($username);
++        return $this->em
++            ->getRepository('AppBundle:User')
++            ->findOneBy(['username' => $username]);
+     }
+ 
+     public function checkCredentials($credentials, UserInterface $user)
+diff --git a/src/AppBundle/Security/HipsterUserProvider.php b/src/AppBundle/Security/HipsterUserProvider.php
+index f4e9827..85877c3 100644
+--- a/src/AppBundle/Security/HipsterUserProvider.php
++++ b/src/AppBundle/Security/HipsterUserProvider.php
+@@ -3,24 +3,40 @@
+ namespace AppBundle\Security;
+ 
+ use AppBundle\Entity\User;
++use Doctrine\ORM\EntityManager;
++use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+ use Symfony\Component\Security\Core\User\UserInterface;
+ use Symfony\Component\Security\Core\User\UserProviderInterface;
+ 
+ class HipsterUserProvider implements UserProviderInterface
+ {
++    private $em;
++
++    public function __construct(EntityManager $em)
++    {
++        $this->em = $em;
++    }
++
+     public function loadUserByUsername($username)
+     {
+-        return new User($username);
++        $user = $this->em->getRepository('AppBundle:User')
++            ->findOneBy(['username' => $username]);
++
++        if (!$user) {
++            throw new UsernameNotFoundException();
++        }
++
++        return $user;
+     }
+ 
+     public function refreshUser(UserInterface $user)
+     {
+-        return $user;
++        return $this->em->getRepository('AppBundle:User')
++            ->findOneBy(['username' => $user->getUsername()]);
+     }
+ 
+     public function supportsClass($class)
+     {
+         return $class == 'AppBundle\Entity\User';
+     }
+-
+-}
+\ No newline at end of file
++}
