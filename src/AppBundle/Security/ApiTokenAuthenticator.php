@@ -37,7 +37,7 @@ class ApiTokenAuthenticator extends AbstractGuardAuthenticator
 
         if (!$user) {
             throw new CustomUserMessageAuthenticationException(
-                'This is a really un-cool api token.'
+                'That API token is not normcore'
             );
         }
 
