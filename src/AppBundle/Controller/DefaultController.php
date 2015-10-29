@@ -5,6 +5,7 @@ namespace AppBundle\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class DefaultController extends Controller
 {
@@ -22,6 +23,10 @@ class DefaultController extends Controller
      */
     public function secureAction()
     {
+        return new JsonResponse([
+            'message' => 'Hello from the secureAction!'
+        ]);
+
         return $this->render('default/secure.html.twig');
     }
 }

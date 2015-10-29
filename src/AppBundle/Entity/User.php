@@ -45,21 +45,18 @@ class User implements UserInterface
     {
         return $this->username;
     }
-
-    public function getPassword()
-    {
-        return;
-    }
-
+    
     public function getRoles()
     {
         return ['ROLE_USER'];
     }
 
+    public function getPassword()
+    {
+    }
     public function getSalt()
     {
     }
-
     public function eraseCredentials()
     {
     }
@@ -83,6 +80,4 @@ class User implements UserInterface
     {
         return $this->email;
     }
-
-
 }
