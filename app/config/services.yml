@@ -10,6 +10,11 @@ services:
         arguments:
             - '@doctrine.orm.entity_manager'
 
+    api_facebook_authenticator:
+        class: AppBundle\Security\FacebookAuthenticator
+        arguments:
+            - '@service_container'
+
     hipster_user_provider:
         class: AppBundle\Security\HipsterUserProvider
         arguments:
