@@ -14,3 +14,12 @@ services:
         class: AppBundle\Security\HipsterUserProvider
         arguments:
             - '@doctrine.orm.entity_manager'
+
+    app.facebook_provider:
+        class: League\OAuth2\Client\Provider\Facebook
+        arguments:
+            -
+                clientId: %facebook_app_id%
+                clientSecret: %facebook_app_secret%
+                graphApiVersion: v2.3
+                redirectUri: "@=service('router').generate('connect_facebook_check', {}, true)"
