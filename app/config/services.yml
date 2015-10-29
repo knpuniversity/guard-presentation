@@ -5,6 +5,11 @@ services:
             - '@router'
             - '@doctrine.orm.entity_manager'
 
+    api_token_authenticator:
+        class: AppBundle\Security\ApiTokenAuthenticator
+        arguments:
+            - '@doctrine.orm.entity_manager'
+
     hipster_user_provider:
         class: AppBundle\Security\HipsterUserProvider
         arguments:
