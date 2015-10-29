@@ -24,9 +24,15 @@ class User implements UserInterface
      */
     private $username;
 
-    public function __construct($username)
+    /**
+     * @ORM\Column(type="string")
+     */
+    private $email;
+
+    public function __construct($username, $email)
     {
         $this->username = $username;
+        $this->email = $email;
     }
 
     public function getUsername()
