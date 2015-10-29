@@ -24,7 +24,37 @@
             "id": "formlogin-abstractformloginauthenticator",
             "name": "FormLogin: AbstractFormLoginAuthenticator",
             "description": null
+        },
+        {
+            "id": "formlogin-loading-user-from-database",
+            "name": "FormLogin: loading User from database",
+            "description": null
+        },
+        {
+            "id": "apitoken-empty-authenticator",
+            "name": "ApiToken: Empty authenticator",
+            "description": null
+        },
+        {
+            "id": "apitoken-hooking-it-up",
+            "name": "ApiToken: Hooking it up",
+            "description": null
+        },
+        {
+            "id": "facebookauthenticator-setup",
+            "name": "FacebookAuthenticator: setup",
+            "description": null
+        },
+        {
+            "id": "custom-message",
+            "name": "Custom message",
+            "description": null
+        },
+        {
+            "id": "manual-login",
+            "name": "Manual login",
+            "description": null
         }
     ],
-    "sha": "e820b410e1ae96a1485033354eb1c8b0e4b14589"
+    "sha": "78db685ccb6b7b7db5bf91a412284cd0dc166ee1"
 }
