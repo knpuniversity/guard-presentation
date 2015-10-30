@@ -1,5 +1,5 @@
 diff --git a/app/config/services.yml b/app/config/services.yml
-index a8bbffc..de655c1 100644
+index 5b2a6d9..ffc454b 100644
 --- a/app/config/services.yml
 +++ b/app/config/services.yml
 @@ -1,7 +1,11 @@
@@ -11,8 +11,8 @@ index a8bbffc..de655c1 100644
 +            - '@router'
 +            - '@doctrine.orm.entity_manager'
  
-     hipster_user_provider:
-         class: AppBundle\Security\HipsterUserProvider
+     spooky_user_provider:
+         class: AppBundle\Security\SpookyUserProvider
 +        arguments:
 +            - '@doctrine.orm.entity_manager'
 diff --git a/load.php b/load.php
@@ -40,7 +40,7 @@ index 0000000..070504d
 +$em->flush();
 +
 diff --git a/src/AppBundle/Entity/User.php b/src/AppBundle/Entity/User.php
-index 378674c..a4c3efd 100644
+index 9073539..9f69100 100644
 --- a/src/AppBundle/Entity/User.php
 +++ b/src/AppBundle/Entity/User.php
 @@ -4,14 +4,35 @@ namespace AppBundle\Entity;
@@ -67,28 +67,28 @@ index 378674c..a4c3efd 100644
 +     */
      private $username;
  
--    public function __construct($username)
+-    public function __construct($username = null)
 +    /**
 +     * @ORM\Column(type="string")
 +     */
 +    private $email;
 +
-+    public function __construct($username, $email)
++    public function __construct($username = null, $email = null)
      {
          $this->username = $username;
 +        $this->email = $email;
      }
  
      public function getUsername()
-@@ -36,4 +57,4 @@ class User implements UserInterface
-     public function eraseCredentials()
+@@ -38,4 +59,4 @@ class User implements UserInterface
      {
+         $this->username = $username;
      }
 -}
 \ No newline at end of file
 +}
 diff --git a/src/AppBundle/Security/FormLoginAuthenticator.php b/src/AppBundle/Security/FormLoginAuthenticator.php
-index 08d3fc6..daf8bf8 100644
+index e015f3f..1a19694 100644
 --- a/src/AppBundle/Security/FormLoginAuthenticator.php
 +++ b/src/AppBundle/Security/FormLoginAuthenticator.php
 @@ -3,6 +3,7 @@
@@ -113,22 +113,25 @@ index 08d3fc6..daf8bf8 100644
      }
  
      public function getCredentials(Request $request)
-@@ -40,7 +44,9 @@ class FormLoginAuthenticator extends AbstractFormLoginAuthenticator
+@@ -40,10 +44,9 @@ class FormLoginAuthenticator extends AbstractFormLoginAuthenticator
      {
          $username = $credentials['username'];
  
--        return new User($username);
+-        $user = new User();
+-        $user->setUsername($username);
+-
+-        return $user;
 +        return $this->em
 +            ->getRepository('AppBundle:User')
 +            ->findOneBy(['username' => $username]);
      }
  
      public function checkCredentials($credentials, UserInterface $user)
-diff --git a/src/AppBundle/Security/HipsterUserProvider.php b/src/AppBundle/Security/HipsterUserProvider.php
-index f4e9827..85877c3 100644
---- a/src/AppBundle/Security/HipsterUserProvider.php
-+++ b/src/AppBundle/Security/HipsterUserProvider.php
-@@ -3,24 +3,40 @@
+diff --git a/src/AppBundle/Security/SpookyUserProvider.php b/src/AppBundle/Security/SpookyUserProvider.php
+index 4f7f768..7eaf776 100644
+--- a/src/AppBundle/Security/SpookyUserProvider.php
++++ b/src/AppBundle/Security/SpookyUserProvider.php
+@@ -3,27 +3,40 @@
  namespace AppBundle\Security;
  
  use AppBundle\Entity\User;
@@ -137,7 +140,7 @@ index f4e9827..85877c3 100644
  use Symfony\Component\Security\Core\User\UserInterface;
  use Symfony\Component\Security\Core\User\UserProviderInterface;
  
- class HipsterUserProvider implements UserProviderInterface
+ class SpookyUserProvider implements UserProviderInterface
  {
 +    private $em;
 +
@@ -148,15 +151,17 @@ index f4e9827..85877c3 100644
 +
      public function loadUserByUsername($username)
      {
--        return new User($username);
+-        // "load" the user - e.g. load from the db
+-        $user = new User();
+-        $user->setUsername($username);
 +        $user = $this->em->getRepository('AppBundle:User')
 +            ->findOneBy(['username' => $username]);
 +
 +        if (!$user) {
 +            throw new UsernameNotFoundException();
 +        }
-+
-+        return $user;
+ 
+         return $user;
      }
  
      public function refreshUser(UserInterface $user)
@@ -170,7 +175,6 @@ index f4e9827..85877c3 100644
      {
          return $class == 'AppBundle\Entity\User';
      }
--
 -}
 \ No newline at end of file
 +}
