@@ -94,10 +94,10 @@ index 0000000..743a289
 +}
 diff --git a/src/AppBundle/Entity/User.php b/src/AppBundle/Entity/User.php
 new file mode 100644
-index 0000000..378674c
+index 0000000..9073539
 --- /dev/null
 +++ b/src/AppBundle/Entity/User.php
-@@ -0,0 +1,39 @@
+@@ -0,0 +1,41 @@
 +<?php
 +
 +namespace AppBundle\Entity;
@@ -109,7 +109,7 @@ index 0000000..378674c
 +{
 +    private $username;
 +
-+    public function __construct($username)
++    public function __construct($username = null)
 +    {
 +        $this->username = $username;
 +    }
@@ -118,32 +118,34 @@ index 0000000..378674c
 +    {
 +        return $this->username;
 +    }
-+
-+    public function getPassword()
-+    {
-+        return;
-+    }
-+
++    
 +    public function getRoles()
 +    {
 +        return ['ROLE_USER'];
 +    }
 +
++    public function getPassword()
++    {
++    }
 +    public function getSalt()
 +    {
 +    }
-+
 +    public function eraseCredentials()
 +    {
++    }
++
++    public function setUsername($username)
++    {
++        $this->username = $username;
 +    }
 +}
 \ No newline at end of file
 diff --git a/src/AppBundle/Security/FormLoginAuthenticator.php b/src/AppBundle/Security/FormLoginAuthenticator.php
 new file mode 100644
-index 0000000..caba145
+index 0000000..e939d6c
 --- /dev/null
 +++ b/src/AppBundle/Security/FormLoginAuthenticator.php
-@@ -0,0 +1,78 @@
+@@ -0,0 +1,83 @@
 +<?php
 +
 +namespace AppBundle\Security;
@@ -185,15 +187,20 @@ index 0000000..caba145
 +    {
 +        $username = $credentials['username'];
 +
-+        return new User($username);
++        $user = new User();
++        $user->setUsername($username);
++
++        return $user;
 +    }
 +
 +    public function checkCredentials($credentials, UserInterface $user)
 +    {
 +        $password = $credentials['password'];
-+        if ($password != 'TheMagicWord') {
-+            throw new BadCredentialsException();
++        if ($password == 'trick' || $password == 'treat') {
++            return;
 +        }
++
++        throw new BadCredentialsException();
 +    }
 +
 +    public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
