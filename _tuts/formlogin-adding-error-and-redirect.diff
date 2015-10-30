@@ -39,10 +39,10 @@ index 743a289..80c69f3 100644
  
      /**
 diff --git a/src/AppBundle/Security/FormLoginAuthenticator.php b/src/AppBundle/Security/FormLoginAuthenticator.php
-index caba145..cacdd03 100644
+index e939d6c..a2dba0d 100644
 --- a/src/AppBundle/Security/FormLoginAuthenticator.php
 +++ b/src/AppBundle/Security/FormLoginAuthenticator.php
-@@ -52,6 +52,7 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
+@@ -57,6 +57,7 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
  
      public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
      {
@@ -50,7 +50,7 @@ index caba145..cacdd03 100644
          $url = $this->router->generate('security_login');
  
          return new RedirectResponse($url);
-@@ -59,7 +60,12 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
+@@ -64,7 +65,12 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
  
      public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
      {

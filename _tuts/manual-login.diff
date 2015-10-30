@@ -69,27 +69,13 @@ index 0000000..e0a97f2
 +}
 \ No newline at end of file
 diff --git a/src/AppBundle/Entity/User.php b/src/AppBundle/Entity/User.php
-index 7783084..56f60ad 100644
+index 7addcd4..3a7d4c1 100644
 --- a/src/AppBundle/Entity/User.php
 +++ b/src/AppBundle/Entity/User.php
-@@ -34,7 +34,7 @@ class User implements UserInterface
-      */
-     private $apiToken;
- 
--    public function __construct($username, $apiToken, $email)
-+    public function __construct($username = null, $apiToken = null, $email = null)
+@@ -65,4 +65,19 @@ class User implements UserInterface
      {
          $this->username = $username;
-         $this->apiToken = $apiToken;
-@@ -63,4 +63,26 @@ class User implements UserInterface
-     public function eraseCredentials()
-     {
      }
-+
-+    public function setUsername($username)
-+    {
-+        $this->username = $username;
-+    }
 +
 +    public function setEmail($email)
 +    {
@@ -105,6 +91,4 @@ index 7783084..56f60ad 100644
 +    {
 +        return $this->email;
 +    }
-+
-+
  }
