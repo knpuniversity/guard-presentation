@@ -1,10 +1,10 @@
 diff --git a/app/config/security.yml b/app/config/security.yml
-index 0b6a1e5..952f31d 100644
+index 2bcb08b..7ce8632 100644
 --- a/app/config/security.yml
 +++ b/app/config/security.yml
 @@ -19,7 +19,10 @@ security:
              # this is optional, since there is only one provider above
-             provider: hipsters
+             provider: monsters
              guard:
 -                authenticators: [form_login_authenticator]
 +                authenticators:
@@ -15,7 +15,7 @@ index 0b6a1e5..952f31d 100644
  
              # http_basic: ~
 diff --git a/app/config/services.yml b/app/config/services.yml
-index de655c1..1476508 100644
+index ffc454b..48270e1 100644
 --- a/app/config/services.yml
 +++ b/app/config/services.yml
 @@ -5,6 +5,11 @@ services:
@@ -27,11 +27,11 @@ index de655c1..1476508 100644
 +        arguments:
 +            - '@doctrine.orm.entity_manager'
 +
-     hipster_user_provider:
-         class: AppBundle\Security\HipsterUserProvider
+     spooky_user_provider:
+         class: AppBundle\Security\SpookyUserProvider
          arguments:
 diff --git a/load.php b/load.php
-index e5f747d..af13506 100644
+index e5f747d..1382f2b 100644
 --- a/load.php
 +++ b/load.php
 @@ -13,7 +13,7 @@ $container = $kernel->getContainer();
@@ -39,25 +39,48 @@ index e5f747d..af13506 100644
  
  $em->createQuery('DELETE FROM AppBundle:User')->execute();
 -$user = new User('weaverryan', 'ryan@knpuniversity.com');
-+$user = new User('weaverryan', 'ryan@knpuniversity.com', 'abcd1234');
++$user = new User('weaverryan', 'abcd1234', 'ryan@knpuniversity.com');
  
  $em->persist($user);
  $em->flush();
+diff --git a/src/AppBundle/Controller/DefaultController.php b/src/AppBundle/Controller/DefaultController.php
+index 22eee9c..a7dea1b 100644
+--- a/src/AppBundle/Controller/DefaultController.php
++++ b/src/AppBundle/Controller/DefaultController.php
+@@ -5,6 +5,7 @@ namespace AppBundle\Controller;
+ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
++use Symfony\Component\HttpFoundation\JsonResponse;
+ 
+ class DefaultController extends Controller
+ {
+@@ -22,6 +23,10 @@ class DefaultController extends Controller
+      */
+     public function secureAction()
+     {
++        return new JsonResponse([
++            'message' => 'Hello from the secureAction!'
++        ]);
++
+         return $this->render('default/secure.html.twig');
+     }
+ }
 diff --git a/src/AppBundle/Entity/User.php b/src/AppBundle/Entity/User.php
-index a4c3efd..7783084 100644
+index 9f69100..7addcd4 100644
 --- a/src/AppBundle/Entity/User.php
 +++ b/src/AppBundle/Entity/User.php
 @@ -29,9 +29,15 @@ class User implements UserInterface
       */
      private $email;
  
--    public function __construct($username, $email)
+-    public function __construct($username = null, $email = null)
 +    /**
 +     * @ORM\Column(type="string")
 +     */
 +    private $apiToken;
 +
-+    public function __construct($username, $apiToken, $email)
++    public function __construct($username = null, $apiToken = null, $email = null)
      {
          $this->username = $username;
 +        $this->apiToken = $apiToken;

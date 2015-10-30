@@ -11,7 +11,7 @@ index 13520f8..16094c6 100644
      </form>
  {% endblock %}
 diff --git a/app/config/parameters.yml.dist b/app/config/parameters.yml.dist
-index 886c92b..91bf707 100644
+index 886c92b..e414639 100644
 --- a/app/config/parameters.yml.dist
 +++ b/app/config/parameters.yml.dist
 @@ -17,3 +17,6 @@ parameters:
@@ -19,10 +19,10 @@ index 886c92b..91bf707 100644
      # A secret key that's used to generate certain security-related tokens
      secret:            ThisTokenIsNotSoSecretChangeIt
 +
-+    facebook_app_id: 992310247459556
-+    facebook_app_secret: a41f4a0cf1f3adc415e8c7041625b8b6
++    facebook_app_id: foo
++    facebook_app_secret: bar
 diff --git a/app/config/security.yml b/app/config/security.yml
-index 952f31d..b517c34 100644
+index 7ce8632..2e275ac 100644
 --- a/app/config/security.yml
 +++ b/app/config/security.yml
 @@ -22,6 +22,7 @@ security:
@@ -34,7 +34,7 @@ index 952f31d..b517c34 100644
              # activate different ways to authenticate
  
 diff --git a/app/config/services.yml b/app/config/services.yml
-index 1476508..df1f598 100644
+index 48270e1..433e16f 100644
 --- a/app/config/services.yml
 +++ b/app/config/services.yml
 @@ -10,7 +10,21 @@ services:
@@ -46,8 +46,8 @@ index 1476508..df1f598 100644
 +        arguments:
 +            - '@service_container'
 +
-     hipster_user_provider:
-         class: AppBundle\Security\HipsterUserProvider
+     spooky_user_provider:
+         class: AppBundle\Security\SpookyUserProvider
          arguments:
              - '@doctrine.orm.entity_manager'
 +
