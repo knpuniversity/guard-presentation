@@ -59,4 +59,19 @@ class User implements UserInterface
     {
         $this->username = $username;
     }
+
+    public function setEmail($email)
+    {
+        $this->email = $email;
+    }
+
+    public function setApiToken($apiToken)
+    {
+        $this->apiToken = $apiToken;
+    }
+
+    public function getEmail()
+    {
+        return $this->email;
+    }
 }
