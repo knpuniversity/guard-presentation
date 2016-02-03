@@ -19,7 +19,10 @@ security:
             # this is optional, since there is only one provider above
             provider: monsters
             guard:
-                authenticators: [form_login_authenticator]
+                authenticators:
+                    - form_login_authenticator
+                    - jwt_authenticator
+                entry_point: form_login_authenticator
             # activate different ways to authenticate
 
             # http_basic: ~
