@@ -13,8 +13,9 @@ use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
+use Symfony\Component\Security\Guard\Authenticator\AbstractFormLoginAuthenticator;
 
-class FormLoginAuthenticator extends AbstractGuardAuthenticator
+class FormLoginAuthenticator extends AbstractFormLoginAuthenticator
 {
     private $router;
 
@@ -53,35 +54,15 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
         }
     }
 
-    public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
+    protected function getLoginUrl()
     {
-        $request->getSession()->set('_security.last_error', $exception);
-        $url = $this->router->generate('security_login');
-
-        return new RedirectResponse($url);
+        return $this->router->generate('security_login');
     }
 
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
+    protected function getDefaultSuccessRedirectUrl()
     {
-        $url = $request->getSession()
-            ->get('_security.'.$providerKey.'.target_path');
-
-        if (!$url) {
-            $url = $this->router->generate('homepage');
-        }
-
-        return new RedirectResponse($url);
+        return $this->router->generate('homepage');
     }
 
-    public function start(Request $request, AuthenticationException $authException = null)
-    {
-        $url = $this->router->generate('security_login');
 
-        return new RedirectResponse($url);
-    }
-
-    public function supportsRememberMe()
-    {
-        return true;
-    }
 }
