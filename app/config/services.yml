@@ -7,6 +7,10 @@ services:
         class: AppBundle\Security\JwtAuthenticator
         autowire: true
 
+    api_facebook_authenticator:
+        class: AppBundle\Security\FacebookAuthenticator
+        autowire: true
+
     spooky_user_provider:
         class: AppBundle\Security\SpookyUserProvider
         arguments:

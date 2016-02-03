@@ -71,3 +71,15 @@ swiftmailer:
 lexik_jwt_authentication:
     private_key_path: %kernel.root_dir%/../var/jwt/private.pem
     public_key_path:  %kernel.root_dir%/../var/jwt/public.pem
+
+knpu_oauth2_client:
+    clients:
+        # will create service: "knpu.oauth2.client.facebook"
+        facebook:
+            type: facebook
+            client_id: %facebook_client_id%
+            client_secret: %facebook_client_secret%
+            redirect_route: connect_facebook_check
+            graph_api_version: v2.5
+            # whether to check OAuth2 "state": defaults to true
+            # use_state: true

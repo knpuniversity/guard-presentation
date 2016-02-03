@@ -22,6 +22,7 @@ security:
                 authenticators:
                     - form_login_authenticator
                     - jwt_authenticator
+                    - api_facebook_authenticator
                 entry_point: form_login_authenticator
             # activate different ways to authenticate
 
