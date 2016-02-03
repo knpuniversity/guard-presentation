@@ -1,7 +1,7 @@
-diff --git a/src/AppBundle/Security/ApiTokenAuthenticator.php b/src/AppBundle/Security/ApiTokenAuthenticator.php
-index 948b8b2..3b64b26 100644
---- a/src/AppBundle/Security/ApiTokenAuthenticator.php
-+++ b/src/AppBundle/Security/ApiTokenAuthenticator.php
+diff --git a/src/AppBundle/Security/JwtTokenAuthenticator.php b/src/AppBundle/Security/JwtTokenAuthenticator.php
+index 8b9439d..fc155d7 100644
+--- a/src/AppBundle/Security/JwtTokenAuthenticator.php
++++ b/src/AppBundle/Security/JwtTokenAuthenticator.php
 @@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
  use Symfony\Component\HttpFoundation\Response;
  use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -10,8 +10,8 @@ index 948b8b2..3b64b26 100644
  use Symfony\Component\Security\Core\User\UserInterface;
  use Symfony\Component\Security\Core\User\UserProviderInterface;
  use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
-@@ -30,9 +31,17 @@ class ApiTokenAuthenticator extends AbstractGuardAuthenticator
-     {
+@@ -32,9 +33,17 @@ class JwtTokenAuthenticator extends AbstractGuardAuthenticator
+ 
          $apiToken = $credentials;
  
 -        return $this->em

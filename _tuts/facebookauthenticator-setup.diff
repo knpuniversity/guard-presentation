@@ -22,19 +22,19 @@ index 886c92b..e414639 100644
 +    facebook_app_id: foo
 +    facebook_app_secret: bar
 diff --git a/app/config/security.yml b/app/config/security.yml
-index 7ce8632..2e275ac 100644
+index e98c155..f9ff3e2 100644
 --- a/app/config/security.yml
 +++ b/app/config/security.yml
 @@ -22,6 +22,7 @@ security:
                  authenticators:
                      - form_login_authenticator
-                     - api_token_authenticator
+                     - jwt_authenticator
 +                    - api_facebook_authenticator
                  entry_point: form_login_authenticator
              # activate different ways to authenticate
  
 diff --git a/app/config/services.yml b/app/config/services.yml
-index 48270e1..433e16f 100644
+index 4c0f791..e4005e1 100644
 --- a/app/config/services.yml
 +++ b/app/config/services.yml
 @@ -10,7 +10,21 @@ services:
@@ -60,49 +60,49 @@ index 48270e1..433e16f 100644
 +                graphApiVersion: v2.3
 +                redirectUri: "@=service('router').generate('connect_facebook_check', {}, true)"
 diff --git a/composer.json b/composer.json
-index b32d22b..1669cb3 100644
+index c7d7d02..23c2abd 100644
 --- a/composer.json
 +++ b/composer.json
-@@ -16,7 +16,8 @@
-         "symfony/monolog-bundle": "~2.4",
-         "sensio/distribution-bundle": "~5.0@dev",
+@@ -22,7 +22,8 @@
+         "sensio/distribution-bundle": "^5.0",
          "sensio/framework-extra-bundle": "^3.0.2",
--        "incenteev/composer-parameter-handler": "~2.0"
-+        "incenteev/composer-parameter-handler": "~2.0",
-+        "league/oauth2-facebook": "dev-master"
+         "incenteev/composer-parameter-handler": "~2.0",
+-        "lexik/jwt-authentication-bundle": "^1.4"
++        "lexik/jwt-authentication-bundle": "^1.4",
++        "league/oauth2-facebook": "^1.1"
      },
      "require-dev": {
-         "sensio/generator-bundle": "~2.3"
+         "sensio/generator-bundle": "^3.0",
 diff --git a/composer.lock b/composer.lock
-index fad62a1..4e21b93 100644
+index af70065..46971fe 100644
 --- a/composer.lock
 +++ b/composer.lock
 @@ -4,8 +4,8 @@
          "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
          "This file is @generated automatically"
      ],
--    "hash": "f3bff46178f9fad869e1a20c6332d435",
--    "content-hash": "90c5cb2995ec7b4bc56f76f5b6844dec",
-+    "hash": "6c9514c43adcec3e3df85abacf5833cf",
-+    "content-hash": "a5f50b3b1d948867ac7ed240ac63874f",
+-    "hash": "b8bae61cc63070e496ad6f85330d6465",
+-    "content-hash": "be8d2333f4205668fcb961d7cde6756a",
++    "hash": "a48db9594a06f6c538a17b299db615e4",
++    "content-hash": "653158f72a833917aa6c212ee6bedea0",
      "packages": [
          {
              "name": "doctrine/annotations",
-@@ -769,6 +769,177 @@
-             "time": "2015-10-22 07:38:06"
+@@ -773,6 +773,177 @@
+             "time": "2016-01-05 21:34:58"
          },
          {
 +            "name": "guzzlehttp/guzzle",
-+            "version": "dev-master",
++            "version": "6.1.1",
 +            "source": {
 +                "type": "git",
 +                "url": "https://github.com/guzzle/guzzle.git",
-+                "reference": "4f11935f709ef5e279af9da062507e72bd356e1a"
++                "reference": "c6851d6e48f63b69357cbfa55bca116448140e0c"
 +            },
 +            "dist": {
 +                "type": "zip",
-+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/4f11935f709ef5e279af9da062507e72bd356e1a",
-+                "reference": "4f11935f709ef5e279af9da062507e72bd356e1a",
++                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/c6851d6e48f63b69357cbfa55bca116448140e0c",
++                "reference": "c6851d6e48f63b69357cbfa55bca116448140e0c",
 +                "shasum": ""
 +            },
 +            "require": {
@@ -151,11 +151,11 @@ index fad62a1..4e21b93 100644
 +                "rest",
 +                "web service"
 +            ],
-+            "time": "2015-10-27 04:12:26"
++            "time": "2015-11-23 00:47:50"
 +        },
 +        {
 +            "name": "guzzlehttp/promises",
-+            "version": "dev-master",
++            "version": "1.0.3",
 +            "source": {
 +                "type": "git",
 +                "url": "https://github.com/guzzle/promises.git",
@@ -206,16 +206,16 @@ index fad62a1..4e21b93 100644
 +        },
 +        {
 +            "name": "guzzlehttp/psr7",
-+            "version": "1.2.0",
++            "version": "1.2.2",
 +            "source": {
 +                "type": "git",
 +                "url": "https://github.com/guzzle/psr7.git",
-+                "reference": "4ef919b0cf3b1989523138b60163bbcb7ba1ff7e"
++                "reference": "f5d04bdd2881ac89abde1fb78cc234bce24327bb"
 +            },
 +            "dist": {
 +                "type": "zip",
-+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/4ef919b0cf3b1989523138b60163bbcb7ba1ff7e",
-+                "reference": "4ef919b0cf3b1989523138b60163bbcb7ba1ff7e",
++                "url": "https://api.github.com/repos/guzzle/psr7/zipball/f5d04bdd2881ac89abde1fb78cc234bce24327bb",
++                "reference": "f5d04bdd2881ac89abde1fb78cc234bce24327bb",
 +                "shasum": ""
 +            },
 +            "require": {
@@ -260,31 +260,31 @@ index fad62a1..4e21b93 100644
 +                "stream",
 +                "uri"
 +            ],
-+            "time": "2015-08-15 19:32:36"
++            "time": "2016-01-23 01:23:02"
 +        },
 +        {
              "name": "incenteev/composer-parameter-handler",
-             "version": "dev-master",
+             "version": "v2.1.2",
              "source": {
-@@ -862,6 +1033,106 @@
-             "time": "2014-11-20 19:18:42"
+@@ -824,6 +995,101 @@
+             "time": "2015-11-10 17:04:01"
          },
          {
 +            "name": "ircmaxell/random-lib",
-+            "version": "dev-master",
++            "version": "v1.1.0",
 +            "source": {
 +                "type": "git",
 +                "url": "https://github.com/ircmaxell/RandomLib.git",
-+                "reference": "338d2f594f7148983805ad56f47de7e47d84b2b9"
++                "reference": "13efa4368bb2ac88bb3b1459b487d907de4dbf7c"
 +            },
 +            "dist": {
 +                "type": "zip",
-+                "url": "https://api.github.com/repos/ircmaxell/RandomLib/zipball/338d2f594f7148983805ad56f47de7e47d84b2b9",
-+                "reference": "338d2f594f7148983805ad56f47de7e47d84b2b9",
++                "url": "https://api.github.com/repos/ircmaxell/RandomLib/zipball/13efa4368bb2ac88bb3b1459b487d907de4dbf7c",
++                "reference": "13efa4368bb2ac88bb3b1459b487d907de4dbf7c",
 +                "shasum": ""
 +            },
 +            "require": {
-+                "ircmaxell/security-lib": "1.1.*@dev",
++                "ircmaxell/security-lib": "1.0.*@dev",
 +                "php": ">=5.3.2"
 +            },
 +            "require-dev": {
@@ -294,7 +294,7 @@ index fad62a1..4e21b93 100644
 +            "type": "library",
 +            "extra": {
 +                "branch-alias": {
-+                    "dev-master": "1.1.x-dev"
++                    "dev-master": "1.0.x-dev"
 +                }
 +            },
 +            "autoload": {
@@ -321,20 +321,20 @@ index fad62a1..4e21b93 100644
 +                "random-numbers",
 +                "random-strings"
 +            ],
-+            "time": "2015-04-08 13:58:58"
++            "time": "2015-01-15 16:31:45"
 +        },
 +        {
 +            "name": "ircmaxell/security-lib",
-+            "version": "v1.1.0",
++            "version": "1.0.0",
 +            "source": {
 +                "type": "git",
 +                "url": "https://github.com/ircmaxell/SecurityLib.git",
-+                "reference": "f3db6de12c20c9bcd1aa3db4353a1bbe0e44e1b5"
++                "reference": "80934de3c482dcafb46b5756e59ebece082b6dc7"
 +            },
 +            "dist": {
 +                "type": "zip",
-+                "url": "https://api.github.com/repos/ircmaxell/SecurityLib/zipball/f3db6de12c20c9bcd1aa3db4353a1bbe0e44e1b5",
-+                "reference": "f3db6de12c20c9bcd1aa3db4353a1bbe0e44e1b5",
++                "url": "https://api.github.com/repos/ircmaxell/SecurityLib/zipball/80934de3c482dcafb46b5756e59ebece082b6dc7",
++                "reference": "80934de3c482dcafb46b5756e59ebece082b6dc7",
 +                "shasum": ""
 +            },
 +            "require": {
@@ -344,11 +344,6 @@ index fad62a1..4e21b93 100644
 +                "mikey179/vfsstream": "1.1.*"
 +            },
 +            "type": "library",
-+            "extra": {
-+                "branch-alias": {
-+                    "dev-master": "1.0.x-dev"
-+                }
-+            },
 +            "autoload": {
 +                "psr-0": {
 +                    "SecurityLib": "lib"
@@ -366,28 +361,28 @@ index fad62a1..4e21b93 100644
 +                }
 +            ],
 +            "description": "A Base Security Library",
-+            "homepage": "https://github.com/ircmaxell/SecurityLib",
-+            "time": "2015-03-20 14:31:23"
++            "homepage": "https://github.com/ircmaxell/PHP-SecurityLib",
++            "time": "2013-04-30 18:00:34"
 +        },
 +        {
              "name": "jdorn/sql-formatter",
-             "version": "dev-master",
+             "version": "v1.2.17",
              "source": {
-@@ -915,6 +1186,120 @@
-             "time": "2015-08-30 16:36:01"
+@@ -874,6 +1140,120 @@
+             "time": "2014-01-12 16:20:24"
          },
          {
 +            "name": "league/oauth2-client",
-+            "version": "dev-master",
++            "version": "1.2.0",
 +            "source": {
 +                "type": "git",
 +                "url": "https://github.com/thephpleague/oauth2-client.git",
-+                "reference": "b2aa423b4ef59734aaf9a4cc7c76e9b627e9eab2"
++                "reference": "4f1a51817090b861651cf3497cd25714a7cabed5"
 +            },
 +            "dist": {
 +                "type": "zip",
-+                "url": "https://api.github.com/repos/thephpleague/oauth2-client/zipball/b2aa423b4ef59734aaf9a4cc7c76e9b627e9eab2",
-+                "reference": "b2aa423b4ef59734aaf9a4cc7c76e9b627e9eab2",
++                "url": "https://api.github.com/repos/thephpleague/oauth2-client/zipball/4f1a51817090b861651cf3497cd25714a7cabed5",
++                "reference": "4f1a51817090b861651cf3497cd25714a7cabed5",
 +                "shasum": ""
 +            },
 +            "require": {
@@ -437,20 +432,20 @@ index fad62a1..4e21b93 100644
 +                "oauth2",
 +                "single sign on"
 +            ],
-+            "time": "2015-10-06 21:04:10"
++            "time": "2016-01-23 18:02:07"
 +        },
 +        {
 +            "name": "league/oauth2-facebook",
-+            "version": "dev-master",
++            "version": "1.1.0",
 +            "source": {
 +                "type": "git",
 +                "url": "https://github.com/thephpleague/oauth2-facebook.git",
-+                "reference": "a9a24650d14597121c136896b792594ec41caa5e"
++                "reference": "0cd44ead57f05f7b8b728dcbf20bab1b56990718"
 +            },
 +            "dist": {
 +                "type": "zip",
-+                "url": "https://api.github.com/repos/thephpleague/oauth2-facebook/zipball/a9a24650d14597121c136896b792594ec41caa5e",
-+                "reference": "a9a24650d14597121c136896b792594ec41caa5e",
++                "url": "https://api.github.com/repos/thephpleague/oauth2-facebook/zipball/0cd44ead57f05f7b8b728dcbf20bab1b56990718",
++                "reference": "0cd44ead57f05f7b8b728dcbf20bab1b56990718",
 +                "shasum": ""
 +            },
 +            "require": {
@@ -488,18 +483,18 @@ index fad62a1..4e21b93 100644
 +                "oauth",
 +                "oauth2"
 +            ],
-+            "time": "2015-10-09 03:58:25"
++            "time": "2015-09-16 22:00:46"
 +        },
 +        {
-             "name": "monolog/monolog",
-             "version": "1.17.2",
-             "source": {
-@@ -1037,6 +1422,55 @@
-             "time": "2015-10-23 13:21:37"
+             "name": "lexik/jwt-authentication-bundle",
+             "version": "v1.4.3",
+             "target-dir": "Lexik/Bundle/JWTAuthenticationBundle",
+@@ -1223,6 +1603,55 @@
+             "time": "2016-01-18 17:07:21"
          },
          {
 +            "name": "psr/http-message",
-+            "version": "dev-master",
++            "version": "1.0",
 +            "source": {
 +                "type": "git",
 +                "url": "https://github.com/php-fig/http-message.git",
@@ -548,36 +543,8 @@ index fad62a1..4e21b93 100644
 +        },
 +        {
              "name": "psr/log",
-             "version": "dev-master",
+             "version": "1.0.0",
              "source": {
-@@ -1144,7 +1578,7 @@
-             },
-             "dist": {
-                 "type": "zip",
--                "url": "https://api.github.com/repos/sensiolabs/SensioFrameworkExtraBundle/zipball/99a2e6eb83c8ae93dea2ee8cb5e86146a979c709",
-+                "url": "https://api.github.com/repos/sensiolabs/SensioFrameworkExtraBundle/zipball/a79e205737b58d557c05caef6dfa8f94d8084bca",
-                 "reference": "99a2e6eb83c8ae93dea2ee8cb5e86146a979c709",
-                 "shasum": ""
-             },
-@@ -1862,7 +2296,7 @@
-             },
-             "dist": {
-                 "type": "zip",
--                "url": "https://api.github.com/repos/symfony/symfony/zipball/44b3f63f3016ce16c6d5ca6c7929ea669d80acf5",
-+                "url": "https://api.github.com/repos/symfony/symfony/zipball/0c5141f683036e7c0629c057f41041ae536dc33f",
-                 "reference": "44b3f63f3016ce16c6d5ca6c7929ea669d80acf5",
-                 "shasum": ""
-             },
-@@ -2099,7 +2533,8 @@
-     "minimum-stability": "dev",
-     "stability-flags": {
-         "symfony/symfony": 20,
--        "sensio/distribution-bundle": 20
-+        "sensio/distribution-bundle": 20,
-+        "league/oauth2-facebook": 20
-     },
-     "prefer-stable": false,
-     "prefer-lowest": false,
 diff --git a/src/AppBundle/Controller/FacebookController.php b/src/AppBundle/Controller/FacebookController.php
 new file mode 100644
 index 0000000..3f3a039

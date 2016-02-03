@@ -1,5 +1,17 @@
+diff --git a/app/AppKernel.php b/app/AppKernel.php
+index 3a57589..18ed36f 100644
+--- a/app/AppKernel.php
++++ b/app/AppKernel.php
+@@ -16,6 +16,7 @@ class AppKernel extends Kernel
+             new Doctrine\Bundle\DoctrineBundle\DoctrineBundle(),
+             new Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
+             new AppBundle\AppBundle(),
++            new Lexik\Bundle\JWTAuthenticationBundle\LexikJWTAuthenticationBundle(),
+         );
+ 
+         if (in_array($this->getEnvironment(), array('dev', 'test'))) {
 diff --git a/app/config/security.yml b/app/config/security.yml
-index 2bcb08b..7ce8632 100644
+index 2bcb08b..e98c155 100644
 --- a/app/config/security.yml
 +++ b/app/config/security.yml
 @@ -19,7 +19,10 @@ security:
@@ -9,40 +21,301 @@ index 2bcb08b..7ce8632 100644
 -                authenticators: [form_login_authenticator]
 +                authenticators:
 +                    - form_login_authenticator
-+                    - api_token_authenticator
++                    - jwt_authenticator
 +                entry_point: form_login_authenticator
              # activate different ways to authenticate
  
              # http_basic: ~
 diff --git a/app/config/services.yml b/app/config/services.yml
-index ffc454b..48270e1 100644
+index ffc454b..4c0f791 100644
 --- a/app/config/services.yml
 +++ b/app/config/services.yml
 @@ -5,6 +5,11 @@ services:
              - '@router'
              - '@doctrine.orm.entity_manager'
  
-+    api_token_authenticator:
-+        class: AppBundle\Security\ApiTokenAuthenticator
++    jwt_authenticator:
++        class: AppBundle\Security\JwtTokenAuthenticator
 +        arguments:
 +            - '@doctrine.orm.entity_manager'
 +
      spooky_user_provider:
          class: AppBundle\Security\SpookyUserProvider
          arguments:
-diff --git a/load.php b/load.php
-index e5f747d..1382f2b 100644
---- a/load.php
-+++ b/load.php
-@@ -13,7 +13,7 @@ $container = $kernel->getContainer();
- $em = $container->get('doctrine.orm.entity_manager');
- 
- $em->createQuery('DELETE FROM AppBundle:User')->execute();
--$user = new User('weaverryan', 'ryan@knpuniversity.com');
-+$user = new User('weaverryan', 'abcd1234', 'ryan@knpuniversity.com');
- 
- $em->persist($user);
- $em->flush();
+diff --git a/composer.json b/composer.json
+index e27a56c..c7d7d02 100644
+--- a/composer.json
++++ b/composer.json
+@@ -21,7 +21,8 @@
+         "symfony/monolog-bundle": "^2.8",
+         "sensio/distribution-bundle": "^5.0",
+         "sensio/framework-extra-bundle": "^3.0.2",
+-        "incenteev/composer-parameter-handler": "^2.0"
++        "incenteev/composer-parameter-handler": "~2.0",
++        "lexik/jwt-authentication-bundle": "^1.4"
+     },
+     "require-dev": {
+         "sensio/generator-bundle": "^3.0",
+diff --git a/composer.lock b/composer.lock
+index d22bc5a..af70065 100644
+--- a/composer.lock
++++ b/composer.lock
+@@ -4,8 +4,8 @@
+         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+         "This file is @generated automatically"
+     ],
+-    "hash": "0831de291a163e5d46334bf04746861d",
+-    "content-hash": "adcea4b5fa98bd5cd0fef19845850f6d",
++    "hash": "b8bae61cc63070e496ad6f85330d6465",
++    "content-hash": "be8d2333f4205668fcb961d7cde6756a",
+     "packages": [
+         {
+             "name": "doctrine/annotations",
+@@ -874,6 +874,81 @@
+             "time": "2014-01-12 16:20:24"
+         },
+         {
++            "name": "lexik/jwt-authentication-bundle",
++            "version": "v1.4.3",
++            "target-dir": "Lexik/Bundle/JWTAuthenticationBundle",
++            "source": {
++                "type": "git",
++                "url": "https://github.com/lexik/LexikJWTAuthenticationBundle.git",
++                "reference": "ffb58688d3222b24dd425d5bbdf3ac10f4cf1473"
++            },
++            "dist": {
++                "type": "zip",
++                "url": "https://api.github.com/repos/lexik/LexikJWTAuthenticationBundle/zipball/ffb58688d3222b24dd425d5bbdf3ac10f4cf1473",
++                "reference": "ffb58688d3222b24dd425d5bbdf3ac10f4cf1473",
++                "shasum": ""
++            },
++            "require": {
++                "namshi/jose": "~6.0",
++                "php": ">=5.4.8",
++                "symfony/console": "~2.3|~3.0",
++                "symfony/framework-bundle": "~2.3|~3.0",
++                "symfony/security-bundle": "~2.3|~3.0"
++            },
++            "require-dev": {
++                "phpunit/phpunit": "^4.1|^5.0",
++                "symfony/phpunit-bridge": "~2.7|~3.0"
++            },
++            "suggest": {
++                "gesdinet/jwt-refresh-token-bundle": "Implements a refresh token system over Json Web Tokens in Symfony"
++            },
++            "type": "symfony-bundle",
++            "extra": {
++                "branch-alias": {
++                    "dev-master": "2.0.x-dev"
++                }
++            },
++            "autoload": {
++                "psr-0": {
++                    "Lexik\\Bundle\\JWTAuthenticationBundle": ""
++                }
++            },
++            "notification-url": "https://packagist.org/downloads/",
++            "license": [
++                "MIT"
++            ],
++            "authors": [
++                {
++                    "name": "Jeremy Barthe",
++                    "email": "j.barthe@lexik.fr"
++                },
++                {
++                    "name": "Dev Lexik",
++                    "email": "dev@lexik.fr"
++                },
++                {
++                    "name": "Cedric Girard",
++                    "email": "c.girard@lexik.fr"
++                },
++                {
++                    "name": "Nicolas Cabot",
++                    "email": "n.cabot@lexik.fr"
++                }
++            ],
++            "description": "This bundle provides JWT authentication for your Symfony REST API",
++            "homepage": "https://github.com/lexik/LexikJWTAuthenticationBundle",
++            "keywords": [
++                "Authentication",
++                "JWS",
++                "api",
++                "bundle",
++                "jwt",
++                "rest",
++                "symfony"
++            ],
++            "time": "2016-01-30 13:02:32"
++        },
++        {
+             "name": "monolog/monolog",
+             "version": "1.17.2",
+             "source": {
+@@ -951,6 +1026,66 @@
+             "time": "2015-10-14 12:51:02"
+         },
+         {
++            "name": "namshi/jose",
++            "version": "6.1.1",
++            "source": {
++                "type": "git",
++                "url": "https://github.com/namshi/jose.git",
++                "reference": "d234ab5da058bda234efbfc231a4ff68f9c984be"
++            },
++            "dist": {
++                "type": "zip",
++                "url": "https://api.github.com/repos/namshi/jose/zipball/d234ab5da058bda234efbfc231a4ff68f9c984be",
++                "reference": "d234ab5da058bda234efbfc231a4ff68f9c984be",
++                "shasum": ""
++            },
++            "require": {
++                "ext-date": "*",
++                "ext-hash": "*",
++                "ext-json": "*",
++                "ext-openssl": "*",
++                "ext-pcre": "*",
++                "ext-spl": "*",
++                "php": ">=5.5",
++                "phpseclib/phpseclib": "^2.0",
++                "symfony/polyfill-php56": "^1.0"
++            },
++            "require-dev": {
++                "phpunit/phpunit": "^4.5|^5.0",
++                "satooshi/php-coveralls": "^1.0"
++            },
++            "type": "library",
++            "autoload": {
++                "psr-4": {
++                    "Namshi\\JOSE\\": "src/Namshi/JOSE/"
++                }
++            },
++            "notification-url": "https://packagist.org/downloads/",
++            "license": [
++                "MIT"
++            ],
++            "authors": [
++                {
++                    "name": "Alessandro Nadalin",
++                    "email": "alessandro.nadalin@gmail.com"
++                },
++                {
++                    "name": "Alessandro Cinelli (cirpo)",
++                    "email": "alessandro.cinelli@gmail.com"
++                }
++            ],
++            "description": "JSON Object Signing and Encryption library for PHP.",
++            "keywords": [
++                "JSON Web Signature",
++                "JSON Web Token",
++                "JWS",
++                "json",
++                "jwt",
++                "token"
++            ],
++            "time": "2016-01-24 11:10:26"
++        },
++        {
+             "name": "paragonie/random_compat",
+             "version": "1.1.6",
+             "source": {
+@@ -999,6 +1134,95 @@
+             "time": "2016-01-29 16:19:52"
+         },
+         {
++            "name": "phpseclib/phpseclib",
++            "version": "2.0.1",
++            "source": {
++                "type": "git",
++                "url": "https://github.com/phpseclib/phpseclib.git",
++                "reference": "ba6fb78f727cd09f2a649113b95468019e490585"
++            },
++            "dist": {
++                "type": "zip",
++                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/ba6fb78f727cd09f2a649113b95468019e490585",
++                "reference": "ba6fb78f727cd09f2a649113b95468019e490585",
++                "shasum": ""
++            },
++            "require": {
++                "php": ">=5.3.3"
++            },
++            "require-dev": {
++                "phing/phing": "~2.7",
++                "phpunit/phpunit": "~4.0",
++                "sami/sami": "~2.0",
++                "squizlabs/php_codesniffer": "~2.0"
++            },
++            "suggest": {
++                "ext-gmp": "Install the GMP (GNU Multiple Precision) extension in order to speed up arbitrary precision integer arithmetic operations.",
++                "ext-libsodium": "SSH2/SFTP can make use of some algorithms provided by the libsodium-php extension.",
++                "ext-mcrypt": "Install the Mcrypt extension in order to speed up a few other cryptographic operations.",
++                "ext-openssl": "Install the OpenSSL extension in order to speed up a wide variety of cryptographic operations."
++            },
++            "type": "library",
++            "autoload": {
++                "psr-4": {
++                    "phpseclib\\": "phpseclib/"
++                }
++            },
++            "notification-url": "https://packagist.org/downloads/",
++            "license": [
++                "MIT"
++            ],
++            "authors": [
++                {
++                    "name": "Jim Wigginton",
++                    "email": "terrafrost@php.net",
++                    "role": "Lead Developer"
++                },
++                {
++                    "name": "Patrick Monnerat",
++                    "email": "pm@datasphere.ch",
++                    "role": "Developer"
++                },
++                {
++                    "name": "Andreas Fischer",
++                    "email": "bantu@phpbb.com",
++                    "role": "Developer"
++                },
++                {
++                    "name": "Hans-Jürgen Petrich",
++                    "email": "petrich@tronic-media.com",
++                    "role": "Developer"
++                },
++                {
++                    "name": "Graham Campbell",
++                    "email": "graham@alt-three.com",
++                    "role": "Developer"
++                }
++            ],
++            "description": "PHP Secure Communications Library - Pure-PHP implementations of RSA, AES, SSH2, SFTP, X.509 etc.",
++            "homepage": "http://phpseclib.sourceforge.net",
++            "keywords": [
++                "BigInteger",
++                "aes",
++                "asn.1",
++                "asn1",
++                "blowfish",
++                "crypto",
++                "cryptography",
++                "encryption",
++                "rsa",
++                "security",
++                "sftp",
++                "signature",
++                "signing",
++                "ssh",
++                "twofish",
++                "x.509",
++                "x509"
++            ],
++            "time": "2016-01-18 17:07:21"
++        },
++        {
+             "name": "psr/log",
+             "version": "1.0.0",
+             "source": {
 diff --git a/src/AppBundle/Controller/DefaultController.php b/src/AppBundle/Controller/DefaultController.php
 index 22eee9c..a7dea1b 100644
 --- a/src/AppBundle/Controller/DefaultController.php
@@ -66,33 +339,12 @@ index 22eee9c..a7dea1b 100644
          return $this->render('default/secure.html.twig');
      }
  }
-diff --git a/src/AppBundle/Entity/User.php b/src/AppBundle/Entity/User.php
-index 9f69100..7addcd4 100644
---- a/src/AppBundle/Entity/User.php
-+++ b/src/AppBundle/Entity/User.php
-@@ -29,9 +29,15 @@ class User implements UserInterface
-      */
-     private $email;
- 
--    public function __construct($username = null, $email = null)
-+    /**
-+     * @ORM\Column(type="string")
-+     */
-+    private $apiToken;
-+
-+    public function __construct($username = null, $apiToken = null, $email = null)
-     {
-         $this->username = $username;
-+        $this->apiToken = $apiToken;
-         $this->email = $email;
-     }
- 
-diff --git a/src/AppBundle/Security/ApiTokenAuthenticator.php b/src/AppBundle/Security/ApiTokenAuthenticator.php
+diff --git a/src/AppBundle/Security/JwtTokenAuthenticator.php b/src/AppBundle/Security/JwtTokenAuthenticator.php
 new file mode 100644
-index 0000000..948b8b2
+index 0000000..8b9439d
 --- /dev/null
-+++ b/src/AppBundle/Security/ApiTokenAuthenticator.php
-@@ -0,0 +1,65 @@
++++ b/src/AppBundle/Security/JwtTokenAuthenticator.php
+@@ -0,0 +1,67 @@
 +<?php
 +
 +namespace AppBundle\Security;
@@ -107,7 +359,7 @@ index 0000000..948b8b2
 +use Symfony\Component\Security\Core\User\UserProviderInterface;
 +use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 +
-+class ApiTokenAuthenticator extends AbstractGuardAuthenticator
++class JwtTokenAuthenticator extends AbstractGuardAuthenticator
 +{
 +    private $em;
 +
@@ -123,6 +375,8 @@ index 0000000..948b8b2
 +
 +    public function getUser($credentials, UserProviderInterface $userProvider)
 +    {
++
++
 +        $apiToken = $credentials;
 +
 +        return $this->em

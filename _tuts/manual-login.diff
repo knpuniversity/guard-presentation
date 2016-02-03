@@ -69,10 +69,10 @@ index 0000000..e0a97f2
 +}
 \ No newline at end of file
 diff --git a/src/AppBundle/Entity/User.php b/src/AppBundle/Entity/User.php
-index 7addcd4..3a7d4c1 100644
+index 9f69100..3960e33 100644
 --- a/src/AppBundle/Entity/User.php
 +++ b/src/AppBundle/Entity/User.php
-@@ -65,4 +65,19 @@ class User implements UserInterface
+@@ -59,4 +59,19 @@ class User implements UserInterface
      {
          $this->username = $username;
      }
