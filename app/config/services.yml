@@ -2,3 +2,6 @@ services:
     form_login_authenticator:
         class: AppBundle\Security\FormLoginAuthenticator
         autowire: true
+
+    spooky_user_provider:
+        class: AppBundle\Security\SpookyUserProvider

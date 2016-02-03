@@ -4,8 +4,8 @@ security:
 
     # http://symfony.com/doc/current/book/security.html#where-do-users-come-from-user-providers
     providers:
-        in_memory:
-            memory: ~
+        monsters:
+            id: spooky_user_provider
 
     firewalls:
         # disables authentication for assets and the profiler, adapt it according to your needs
@@ -16,6 +16,8 @@ security:
         main:
             anonymous: ~
             logout: ~
+            # this is optional, since there is only one provider above
+            provider: monsters
             guard:
                 authenticators: [form_login_authenticator]
             # activate different ways to authenticate
