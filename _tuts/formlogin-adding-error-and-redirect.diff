@@ -1,3 +1,12 @@
+diff --git a/README.md b/README.md
+index 7759d13..822218f 100644
+--- a/README.md
++++ b/README.md
+@@ -5,3 +5,4 @@ This is code behind the Guard presentation first given
+ at Symfony Live San Francisco in 2015.
+ 
+ The `finish` branch contains the ending code.
++
 diff --git a/app/Resources/views/security/login.html.twig b/app/Resources/views/security/login.html.twig
 index f95bf17..13520f8 100644
 --- a/app/Resources/views/security/login.html.twig
