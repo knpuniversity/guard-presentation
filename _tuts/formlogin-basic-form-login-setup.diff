@@ -142,10 +142,10 @@ index 0000000..9073539
 \ No newline at end of file
 diff --git a/src/AppBundle/Security/FormLoginAuthenticator.php b/src/AppBundle/Security/FormLoginAuthenticator.php
 new file mode 100644
-index 0000000..e939d6c
+index 0000000..46bd09d
 --- /dev/null
 +++ b/src/AppBundle/Security/FormLoginAuthenticator.php
-@@ -0,0 +1,83 @@
+@@ -0,0 +1,81 @@
 +<?php
 +
 +namespace AppBundle\Security;
@@ -197,10 +197,8 @@ index 0000000..e939d6c
 +    {
 +        $password = $credentials['password'];
 +        if ($password == 'trick' || $password == 'treat') {
-+            return;
++            return true;
 +        }
-+
-+        throw new BadCredentialsException();
 +    }
 +
 +    public function onAuthenticationFailure(Request $request, AuthenticationException $exception)

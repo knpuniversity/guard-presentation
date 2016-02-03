@@ -1,3 +1,15 @@
+diff --git a/app/AppKernel.php b/app/AppKernel.php
+index 18ed36f..6b68e91 100644
+--- a/app/AppKernel.php
++++ b/app/AppKernel.php
+@@ -17,6 +17,7 @@ class AppKernel extends Kernel
+             new Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
+             new AppBundle\AppBundle(),
+             new Lexik\Bundle\JWTAuthenticationBundle\LexikJWTAuthenticationBundle(),
++            new KnpU\OAuth2ClientBundle\KnpUOAuth2ClientBundle(),
+         );
+ 
+         if (in_array($this->getEnvironment(), array('dev', 'test'))) {
 diff --git a/app/Resources/views/security/login.html.twig b/app/Resources/views/security/login.html.twig
 index 13520f8..16094c6 100644
 --- a/app/Resources/views/security/login.html.twig
@@ -10,8 +22,28 @@ index 13520f8..16094c6 100644
          <button type="submit">Login</button>
      </form>
  {% endblock %}
+diff --git a/app/config/config.yml b/app/config/config.yml
+index 11a5f5d..abc3d7b 100644
+--- a/app/config/config.yml
++++ b/app/config/config.yml
+@@ -71,3 +71,15 @@ swiftmailer:
+ lexik_jwt_authentication:
+     private_key_path: %kernel.root_dir%/../var/jwt/private.pem
+     public_key_path:  %kernel.root_dir%/../var/jwt/public.pem
++
++knpu_oauth2_client:
++    clients:
++        # will create service: "knpu.oauth2.client.facebook"
++        facebook:
++            type: facebook
++            client_id: %facebook_client_id%
++            client_secret: %facebook_client_secret%
++            redirect_route: connect_facebook_check
++            graph_api_version: v2.5
++            # whether to check OAuth2 "state": defaults to true
++            # use_state: true
 diff --git a/app/config/parameters.yml.dist b/app/config/parameters.yml.dist
-index 886c92b..e414639 100644
+index 886c92b..080f7fd 100644
 --- a/app/config/parameters.yml.dist
 +++ b/app/config/parameters.yml.dist
 @@ -17,3 +17,6 @@ parameters:
@@ -19,8 +51,8 @@ index 886c92b..e414639 100644
      # A secret key that's used to generate certain security-related tokens
      secret:            ThisTokenIsNotSoSecretChangeIt
 +
-+    facebook_app_id: foo
-+    facebook_app_secret: bar
++    facebook_client_id: foo
++    facebook_client_secret: bar
 diff --git a/app/config/security.yml b/app/config/security.yml
 index e98c155..f9ff3e2 100644
 --- a/app/config/security.yml
@@ -34,47 +66,37 @@ index e98c155..f9ff3e2 100644
              # activate different ways to authenticate
  
 diff --git a/app/config/services.yml b/app/config/services.yml
-index ec3767d..0e5fb90 100644
+index 805eab7..05d457d 100644
 --- a/app/config/services.yml
 +++ b/app/config/services.yml
-@@ -9,7 +9,21 @@ services:
+@@ -7,6 +7,10 @@ services:
          class: AppBundle\Security\JwtTokenAuthenticator
          autowire: true
  
 +    api_facebook_authenticator:
 +        class: AppBundle\Security\FacebookAuthenticator
-+        arguments:
-+            - '@service_container'
++        autowire: true
 +
      spooky_user_provider:
          class: AppBundle\Security\SpookyUserProvider
          arguments:
-             - '@doctrine.orm.entity_manager'
-+
-+    app.facebook_provider:
-+        class: League\OAuth2\Client\Provider\Facebook
-+        arguments:
-+            -
-+                clientId: %facebook_app_id%
-+                clientSecret: %facebook_app_secret%
-+                graphApiVersion: v2.3
-+                redirectUri: "@=service('router').generate('connect_facebook_check', {}, true)"
 diff --git a/composer.json b/composer.json
-index d6a4718..74e67c7 100644
+index d6a4718..43c7096 100644
 --- a/composer.json
 +++ b/composer.json
-@@ -21,7 +21,8 @@
+@@ -21,7 +21,9 @@
          "sensio/distribution-bundle": "^5.0",
          "sensio/framework-extra-bundle": "^3.0.2",
          "incenteev/composer-parameter-handler": "~2.0",
 -        "lexik/jwt-authentication-bundle": "^1.4"
 +        "lexik/jwt-authentication-bundle": "^1.4",
-+        "league/oauth2-facebook": "^1.1"
++        "league/oauth2-facebook": "^1.1",
++        "knpuniversity/oauth2-client-bundle": "^0.5.0"
      },
      "require-dev": {
          "sensio/generator-bundle": "^3.0",
 diff --git a/composer.lock b/composer.lock
-index 8ac10d5..1215ae2 100644
+index 8ac10d5..9a0ba79 100644
 --- a/composer.lock
 +++ b/composer.lock
 @@ -4,8 +4,8 @@
@@ -83,8 +105,8 @@ index 8ac10d5..1215ae2 100644
      ],
 -    "hash": "4290bc888df8abfc438912c6e1d67279",
 -    "content-hash": "6cf466b582aa77e3834af3ec65e5afc8",
-+    "hash": "a48db9594a06f6c538a17b299db615e4",
-+    "content-hash": "653158f72a833917aa6c212ee6bedea0",
++    "hash": "21c83838a006794b489954e4435dd2b1",
++    "content-hash": "22a342110cef4dd5329f25d31a733986",
      "packages": [
          {
              "name": "doctrine/annotations",
@@ -368,10 +390,58 @@ index 8ac10d5..1215ae2 100644
              "name": "jdorn/sql-formatter",
              "version": "v1.2.17",
              "source": {
-@@ -874,6 +1140,120 @@
+@@ -874,6 +1140,168 @@
              "time": "2014-01-12 16:20:24"
          },
          {
++            "name": "knpuniversity/oauth2-client-bundle",
++            "version": "0.5.0",
++            "source": {
++                "type": "git",
++                "url": "https://github.com/knpuniversity/oauth2-client-bundle.git",
++                "reference": "c4554cbcd68efd494f76064874709d1c6dc98769"
++            },
++            "dist": {
++                "type": "zip",
++                "url": "https://api.github.com/repos/knpuniversity/oauth2-client-bundle/zipball/c4554cbcd68efd494f76064874709d1c6dc98769",
++                "reference": "c4554cbcd68efd494f76064874709d1c6dc98769",
++                "shasum": ""
++            },
++            "require": {
++                "league/oauth2-client": "^1.0",
++                "symfony/dependency-injection": "~2.8|~3.0",
++                "symfony/framework-bundle": "~2.4|~3.0",
++                "symfony/http-foundation": "~2.4|~3.0",
++                "symfony/routing": "~2.3|~3.0"
++            },
++            "require-dev": {
++                "league/oauth2-facebook": "^1.1"
++            },
++            "type": "symfony-bundle",
++            "autoload": {
++                "psr-4": {
++                    "KnpU\\OAuth2ClientBundle\\": ""
++                }
++            },
++            "notification-url": "https://packagist.org/downloads/",
++            "license": [
++                "MIT"
++            ],
++            "authors": [
++                {
++                    "name": "Ryan Weaver",
++                    "email": "ryan@knpuniversity.com"
++                }
++            ],
++            "description": "Integration with league/oauth2-client to provide services",
++            "homepage": "http://knpuniversity.com",
++            "keywords": [
++                "oauth",
++                "oauth2"
++            ],
++            "time": "2016-02-02 19:46:00"
++        },
++        {
 +            "name": "league/oauth2-client",
 +            "version": "1.2.0",
 +            "source": {
@@ -489,10 +559,42 @@ index 8ac10d5..1215ae2 100644
              "name": "lexik/jwt-authentication-bundle",
              "version": "v1.4.3",
              "target-dir": "Lexik/Bundle/JWTAuthenticationBundle",
-@@ -1223,6 +1603,55 @@
-             "time": "2016-01-18 17:07:21"
-         },
-         {
+@@ -1194,33 +1622,82 @@
+                     "role": "Developer"
+                 },
+                 {
+-                    "name": "Graham Campbell",
+-                    "email": "graham@alt-three.com",
+-                    "role": "Developer"
++                    "name": "Graham Campbell",
++                    "email": "graham@alt-three.com",
++                    "role": "Developer"
++                }
++            ],
++            "description": "PHP Secure Communications Library - Pure-PHP implementations of RSA, AES, SSH2, SFTP, X.509 etc.",
++            "homepage": "http://phpseclib.sourceforge.net",
++            "keywords": [
++                "BigInteger",
++                "aes",
++                "asn.1",
++                "asn1",
++                "blowfish",
++                "crypto",
++                "cryptography",
++                "encryption",
++                "rsa",
++                "security",
++                "sftp",
++                "signature",
++                "signing",
++                "ssh",
++                "twofish",
++                "x.509",
++                "x509"
++            ],
++            "time": "2016-01-18 17:07:21"
++        },
++        {
 +            "name": "psr/http-message",
 +            "version": "1.0",
 +            "source": {
@@ -528,29 +630,274 @@ index 8ac10d5..1215ae2 100644
 +                {
 +                    "name": "PHP-FIG",
 +                    "homepage": "http://www.php-fig.org/"
-+                }
-+            ],
+                 }
+             ],
+-            "description": "PHP Secure Communications Library - Pure-PHP implementations of RSA, AES, SSH2, SFTP, X.509 etc.",
+-            "homepage": "http://phpseclib.sourceforge.net",
 +            "description": "Common interface for HTTP messages",
-+            "keywords": [
+             "keywords": [
+-                "BigInteger",
+-                "aes",
+-                "asn.1",
+-                "asn1",
+-                "blowfish",
+-                "crypto",
+-                "cryptography",
+-                "encryption",
+-                "rsa",
+-                "security",
+-                "sftp",
+-                "signature",
+-                "signing",
+-                "ssh",
+-                "twofish",
+-                "x.509",
+-                "x509"
 +                "http",
 +                "http-message",
 +                "psr",
 +                "psr-7",
 +                "request",
 +                "response"
-+            ],
+             ],
+-            "time": "2016-01-18 17:07:21"
 +            "time": "2015-05-04 20:22:00"
-+        },
-+        {
+         },
+         {
              "name": "psr/log",
-             "version": "1.0.0",
+@@ -2054,226 +2531,6 @@
+     ],
+     "packages-dev": [
+         {
+-            "name": "guzzlehttp/guzzle",
+-            "version": "6.1.1",
+-            "source": {
+-                "type": "git",
+-                "url": "https://github.com/guzzle/guzzle.git",
+-                "reference": "c6851d6e48f63b69357cbfa55bca116448140e0c"
+-            },
+-            "dist": {
+-                "type": "zip",
+-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/c6851d6e48f63b69357cbfa55bca116448140e0c",
+-                "reference": "c6851d6e48f63b69357cbfa55bca116448140e0c",
+-                "shasum": ""
+-            },
+-            "require": {
+-                "guzzlehttp/promises": "~1.0",
+-                "guzzlehttp/psr7": "~1.1",
+-                "php": ">=5.5.0"
+-            },
+-            "require-dev": {
+-                "ext-curl": "*",
+-                "phpunit/phpunit": "~4.0",
+-                "psr/log": "~1.0"
+-            },
+-            "type": "library",
+-            "extra": {
+-                "branch-alias": {
+-                    "dev-master": "6.1-dev"
+-                }
+-            },
+-            "autoload": {
+-                "files": [
+-                    "src/functions_include.php"
+-                ],
+-                "psr-4": {
+-                    "GuzzleHttp\\": "src/"
+-                }
+-            },
+-            "notification-url": "https://packagist.org/downloads/",
+-            "license": [
+-                "MIT"
+-            ],
+-            "authors": [
+-                {
+-                    "name": "Michael Dowling",
+-                    "email": "mtdowling@gmail.com",
+-                    "homepage": "https://github.com/mtdowling"
+-                }
+-            ],
+-            "description": "Guzzle is a PHP HTTP client library",
+-            "homepage": "http://guzzlephp.org/",
+-            "keywords": [
+-                "client",
+-                "curl",
+-                "framework",
+-                "http",
+-                "http client",
+-                "rest",
+-                "web service"
+-            ],
+-            "time": "2015-11-23 00:47:50"
+-        },
+-        {
+-            "name": "guzzlehttp/promises",
+-            "version": "1.0.3",
+-            "source": {
+-                "type": "git",
+-                "url": "https://github.com/guzzle/promises.git",
+-                "reference": "b1e1c0d55f8083c71eda2c28c12a228d708294ea"
+-            },
+-            "dist": {
+-                "type": "zip",
+-                "url": "https://api.github.com/repos/guzzle/promises/zipball/b1e1c0d55f8083c71eda2c28c12a228d708294ea",
+-                "reference": "b1e1c0d55f8083c71eda2c28c12a228d708294ea",
+-                "shasum": ""
+-            },
+-            "require": {
+-                "php": ">=5.5.0"
+-            },
+-            "require-dev": {
+-                "phpunit/phpunit": "~4.0"
+-            },
+-            "type": "library",
+-            "extra": {
+-                "branch-alias": {
+-                    "dev-master": "1.0-dev"
+-                }
+-            },
+-            "autoload": {
+-                "psr-4": {
+-                    "GuzzleHttp\\Promise\\": "src/"
+-                },
+-                "files": [
+-                    "src/functions_include.php"
+-                ]
+-            },
+-            "notification-url": "https://packagist.org/downloads/",
+-            "license": [
+-                "MIT"
+-            ],
+-            "authors": [
+-                {
+-                    "name": "Michael Dowling",
+-                    "email": "mtdowling@gmail.com",
+-                    "homepage": "https://github.com/mtdowling"
+-                }
+-            ],
+-            "description": "Guzzle promises library",
+-            "keywords": [
+-                "promise"
+-            ],
+-            "time": "2015-10-15 22:28:00"
+-        },
+-        {
+-            "name": "guzzlehttp/psr7",
+-            "version": "1.2.2",
+-            "source": {
+-                "type": "git",
+-                "url": "https://github.com/guzzle/psr7.git",
+-                "reference": "f5d04bdd2881ac89abde1fb78cc234bce24327bb"
+-            },
+-            "dist": {
+-                "type": "zip",
+-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/f5d04bdd2881ac89abde1fb78cc234bce24327bb",
+-                "reference": "f5d04bdd2881ac89abde1fb78cc234bce24327bb",
+-                "shasum": ""
+-            },
+-            "require": {
+-                "php": ">=5.4.0",
+-                "psr/http-message": "~1.0"
+-            },
+-            "provide": {
+-                "psr/http-message-implementation": "1.0"
+-            },
+-            "require-dev": {
+-                "phpunit/phpunit": "~4.0"
+-            },
+-            "type": "library",
+-            "extra": {
+-                "branch-alias": {
+-                    "dev-master": "1.0-dev"
+-                }
+-            },
+-            "autoload": {
+-                "psr-4": {
+-                    "GuzzleHttp\\Psr7\\": "src/"
+-                },
+-                "files": [
+-                    "src/functions_include.php"
+-                ]
+-            },
+-            "notification-url": "https://packagist.org/downloads/",
+-            "license": [
+-                "MIT"
+-            ],
+-            "authors": [
+-                {
+-                    "name": "Michael Dowling",
+-                    "email": "mtdowling@gmail.com",
+-                    "homepage": "https://github.com/mtdowling"
+-                }
+-            ],
+-            "description": "PSR-7 message implementation",
+-            "keywords": [
+-                "http",
+-                "message",
+-                "stream",
+-                "uri"
+-            ],
+-            "time": "2016-01-23 01:23:02"
+-        },
+-        {
+-            "name": "psr/http-message",
+-            "version": "1.0",
+-            "source": {
+-                "type": "git",
+-                "url": "https://github.com/php-fig/http-message.git",
+-                "reference": "85d63699f0dbedb190bbd4b0d2b9dc707ea4c298"
+-            },
+-            "dist": {
+-                "type": "zip",
+-                "url": "https://api.github.com/repos/php-fig/http-message/zipball/85d63699f0dbedb190bbd4b0d2b9dc707ea4c298",
+-                "reference": "85d63699f0dbedb190bbd4b0d2b9dc707ea4c298",
+-                "shasum": ""
+-            },
+-            "require": {
+-                "php": ">=5.3.0"
+-            },
+-            "type": "library",
+-            "extra": {
+-                "branch-alias": {
+-                    "dev-master": "1.0.x-dev"
+-                }
+-            },
+-            "autoload": {
+-                "psr-4": {
+-                    "Psr\\Http\\Message\\": "src/"
+-                }
+-            },
+-            "notification-url": "https://packagist.org/downloads/",
+-            "license": [
+-                "MIT"
+-            ],
+-            "authors": [
+-                {
+-                    "name": "PHP-FIG",
+-                    "homepage": "http://www.php-fig.org/"
+-                }
+-            ],
+-            "description": "Common interface for HTTP messages",
+-            "keywords": [
+-                "http",
+-                "http-message",
+-                "psr",
+-                "psr-7",
+-                "request",
+-                "response"
+-            ],
+-            "time": "2015-05-04 20:22:00"
+-        },
+-        {
+             "name": "sensio/generator-bundle",
+             "version": "v3.0.5",
              "source": {
 diff --git a/src/AppBundle/Controller/FacebookController.php b/src/AppBundle/Controller/FacebookController.php
 new file mode 100644
-index 0000000..3f3a039
+index 0000000..83cb403
 --- /dev/null
 +++ b/src/AppBundle/Controller/FacebookController.php
-@@ -0,0 +1,33 @@
+@@ -0,0 +1,26 @@
 +<?php
 +
 +namespace AppBundle\Controller;
@@ -565,15 +912,8 @@ index 0000000..3f3a039
 +     */
 +    public function connectFacebookAction()
 +    {
-+        // redirect to Facebook
-+        $facebookOAuthProvider = $this->get('app.facebook_provider');
-+
-+        $url = $facebookOAuthProvider->getAuthorizationUrl([
-+            // these are actually the default scopes
-+            'scopes' => ['public_profile', 'email'],
-+        ]);
-+
-+        return $this->redirect($url);
++        return $this->get('knpu.oauth2.client.facebook')
++            ->redirect(['public_profile', 'email']);
 +    }
 +
 +    /**
@@ -587,21 +927,24 @@ index 0000000..3f3a039
 \ No newline at end of file
 diff --git a/src/AppBundle/Security/FacebookAuthenticator.php b/src/AppBundle/Security/FacebookAuthenticator.php
 new file mode 100644
-index 0000000..3f7fe93
+index 0000000..c129bab
 --- /dev/null
 +++ b/src/AppBundle/Security/FacebookAuthenticator.php
-@@ -0,0 +1,123 @@
+@@ -0,0 +1,122 @@
 +<?php
 +
 +namespace AppBundle\Security;
 +
 +use AppBundle\Entity\User;
++use Doctrine\ORM\EntityManager;
++use KnpU\OAuth2ClientBundle\Client\OAuth2Client;
 +use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 +use League\OAuth2\Client\Provider\FacebookUser;
-+use Symfony\Component\DependencyInjection\ContainerInterface;
++use League\OAuth2\Client\Token\AccessToken;
 +use Symfony\Component\HttpFoundation\RedirectResponse;
 +use Symfony\Component\HttpFoundation\Request;
 +use Symfony\Component\HttpFoundation\Response;
++use Symfony\Component\Routing\RouterInterface;
 +use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 +use Symfony\Component\Security\Core\Exception\AuthenticationException;
 +use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
@@ -612,11 +955,21 @@ index 0000000..3f7fe93
 +
 +class FacebookAuthenticator extends AbstractGuardAuthenticator
 +{
-+    private $container;
++    private $oAuth2Client;
++    /**
++     * @var EntityManager
++     */
++    private $em;
++    /**
++     * @var RouterInterface
++     */
++    private $router;
 +
-+    public function __construct(ContainerInterface $container)
++    public function __construct(OAuth2Client $oAuth2Client, EntityManager $em, RouterInterface $router)
 +    {
-+        $this->container = $container;
++        $this->oAuth2Client = $oAuth2Client;
++        $this->em = $em;
++        $this->router = $router;
 +    }
 +
 +    public function getCredentials(Request $request)
@@ -625,39 +978,26 @@ index 0000000..3f7fe93
 +            return;
 +        }
 +
-+        if ($code = $request->query->get('code')) {
-+            return $code;
-+        }
++        try {
++            return $this->oAuth2Client->getAccessToken();
++        } catch (IdentityProviderException $e) {
++            // you could parse the response to see the problem
 +
-+        throw new CustomUserMessageAuthenticationException(
-+            'Dude, you messed up authorizing us in Facebook!'
-+        );
++            throw $e;
++        }
 +    }
 +
 +    public function getUser($credentials, UserProviderInterface $userProvider)
 +    {
-+        $authorizationCode = $credentials;
-+
-+        $facebookProvider = $this->container->get('app.facebook_provider');
-+
-+        try {
-+            // the credentials are really the access token
-+            $accessToken = $facebookProvider->getAccessToken(
-+                'authorization_code',
-+                ['code' => $authorizationCode]
-+            );
-+        } catch (IdentityProviderException $e) {
-+            // you could parse the response to see the problem
-+            return;
-+        }
++        /** @var AccessToken $accessToken */
++        $accessToken = $credentials;
 +
 +        /** @var FacebookUser $facebookUser */
-+        $facebookUser = $facebookProvider->getResourceOwner($accessToken);
-+
-+        $em = $this->container->get('doctrine')->getManager();
++        $facebookUser = $this->oAuth2Client
++            ->fetchUserFromToken($accessToken);
 +
 +        // 1) have they logged in with Facebook before? Easy!
-+        $user = $em->getRepository('AppBundle:User')
++        $user = $this->em->getRepository('AppBundle:User')
 +            ->findOneBy(array('email' => $facebookUser->getEmail()));
 +        if ($user) {
 +            return $user;
@@ -670,15 +1010,15 @@ index 0000000..3f7fe93
 +            sha1('SOME_RANDOM_STRING'.mt_rand()),
 +            $facebookUser->getEmail()
 +        );
-+        $em->persist($user);
-+        $em->flush();
++        $this->em->persist($user);
++        $this->em->flush();
 +
 +        return $user;
 +    }
 +
 +    public function checkCredentials($credentials, UserInterface $user)
 +    {
-+        // TODO: Implement checkCredentials() method.
++        return true;
 +    }
 +
 +    public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
@@ -686,7 +1026,7 @@ index 0000000..3f7fe93
 +        // this would happen if something went wrong in the OAuth flow
 +        $request->getSession()->set(Security::AUTHENTICATION_ERROR, $exception);
 +
-+        $url = $this->container->get('router')
++        $url = $this->router
 +            ->generate('security_login');
 +
 +        return new RedirectResponse($url);
@@ -697,8 +1037,7 @@ index 0000000..3f7fe93
 +        $targetPath = $request->getSession()->get('_security.'.$providerKey.'.target_path');
 +
 +        if (!$targetPath) {
-+            $router = $this->container->get('router');
-+            $targetPath = $router->generate('homepage');
++            $targetPath = $this->router->generate('homepage');
 +        }
 +
 +        return new RedirectResponse($targetPath);

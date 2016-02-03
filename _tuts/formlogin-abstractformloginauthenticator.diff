@@ -15,7 +15,7 @@ index 80c69f3..fba81ec 100644
      }
  
 diff --git a/src/AppBundle/Security/FormLoginAuthenticator.php b/src/AppBundle/Security/FormLoginAuthenticator.php
-index a2dba0d..e015f3f 100644
+index 2560c16..c1c3a57 100644
 --- a/src/AppBundle/Security/FormLoginAuthenticator.php
 +++ b/src/AppBundle/Security/FormLoginAuthenticator.php
 @@ -13,8 +13,9 @@ use Symfony\Component\Security\Core\Exception\BadCredentialsException;
@@ -29,8 +29,8 @@ index a2dba0d..e015f3f 100644
  {
      private $router;
  
-@@ -55,35 +56,15 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
-         throw new BadCredentialsException();
+@@ -53,35 +54,15 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
+         }
      }
  
 -    public function onAuthenticationFailure(Request $request, AuthenticationException $exception)

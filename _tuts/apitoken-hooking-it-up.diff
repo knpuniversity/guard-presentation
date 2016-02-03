@@ -39,12 +39,12 @@ index 2bcb08b..e98c155 100644
  
              # http_basic: ~
 diff --git a/app/config/services.yml b/app/config/services.yml
-index ffc454b..ec3767d 100644
+index 86d0aa2..805eab7 100644
 --- a/app/config/services.yml
 +++ b/app/config/services.yml
-@@ -5,6 +5,10 @@ services:
-             - '@router'
-             - '@doctrine.orm.entity_manager'
+@@ -3,6 +3,10 @@ services:
+         class: AppBundle\Security\FormLoginAuthenticator
+         autowire: true
  
 +    jwt_authenticator:
 +        class: AppBundle\Security\JwtTokenAuthenticator
@@ -633,10 +633,10 @@ index fba81ec..29041f1 100644
 +    }
  }
 diff --git a/src/AppBundle/Security/FormLoginAuthenticator.php b/src/AppBundle/Security/FormLoginAuthenticator.php
-index 1a19694..d268fde 100644
+index a4c17ce..b81b074 100644
 --- a/src/AppBundle/Security/FormLoginAuthenticator.php
 +++ b/src/AppBundle/Security/FormLoginAuthenticator.php
-@@ -68,6 +68,4 @@ class FormLoginAuthenticator extends AbstractFormLoginAuthenticator
+@@ -66,6 +66,4 @@ class FormLoginAuthenticator extends AbstractFormLoginAuthenticator
      {
          return $this->router->generate('homepage');
      }

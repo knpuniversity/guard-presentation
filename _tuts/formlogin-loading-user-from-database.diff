@@ -1,15 +1,8 @@
 diff --git a/app/config/services.yml b/app/config/services.yml
-index 5b2a6d9..ffc454b 100644
+index 5b2a6d9..86d0aa2 100644
 --- a/app/config/services.yml
 +++ b/app/config/services.yml
-@@ -1,7 +1,11 @@
- services:
-     form_login_authenticator:
-         class: AppBundle\Security\FormLoginAuthenticator
--        autowire: true
-+        arguments:
-+            - '@router'
-+            - '@doctrine.orm.entity_manager'
+@@ -5,3 +5,5 @@ services:
  
      spooky_user_provider:
          class: AppBundle\Security\SpookyUserProvider
@@ -87,7 +80,7 @@ index 9073539..9f69100 100644
 \ No newline at end of file
 +}
 diff --git a/src/AppBundle/Security/FormLoginAuthenticator.php b/src/AppBundle/Security/FormLoginAuthenticator.php
-index e015f3f..1a19694 100644
+index c1c3a57..a4c17ce 100644
 --- a/src/AppBundle/Security/FormLoginAuthenticator.php
 +++ b/src/AppBundle/Security/FormLoginAuthenticator.php
 @@ -3,6 +3,7 @@
