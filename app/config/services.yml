@@ -5,3 +5,5 @@ services:
 
     spooky_user_provider:
         class: AppBundle\Security\SpookyUserProvider
+        arguments:
+            - '@doctrine.orm.entity_manager'

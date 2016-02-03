@@ -4,14 +4,35 @@ namespace AppBundle\Entity;
 
 use Symfony\Component\Security\Core\Role\Role;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Doctrine\ORM\Mapping as ORM;
 
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="user")
+ */
 class User implements UserInterface
 {
+    /**
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     * @ORM\Column(type="integer")
+     */
+    private $id;
+
+    /**
+     * @ORM\Column(type="string")
+     */
     private $username;
 
-    public function __construct($username = null)
+    /**
+     * @ORM\Column(type="string")
+     */
+    private $email;
+
+    public function __construct($username = null, $email = null)
     {
         $this->username = $username;
+        $this->email = $email;
     }
 
     public function getUsername()
