@@ -15,6 +15,9 @@ security:
 
         main:
             anonymous: ~
+            logout: ~
+            guard:
+                authenticators: [form_login_authenticator]
             # activate different ways to authenticate
 
             # http_basic: ~
