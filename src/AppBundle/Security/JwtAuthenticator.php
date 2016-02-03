@@ -49,9 +49,17 @@ class JwtAuthenticator extends AbstractGuardAuthenticator
 
         $username = $data['username'];
 
-        return $this->em
+        $user = $this->em
             ->getRepository('AppBundle:User')
             ->findOneBy(['username' => $username]);
+
+        if (!$user) {
+            throw new CustomUserMessageAuthenticationException(
+                'That API token is not normcore'
+            );
+        }
+
+        return $user;
     }
 
     public function checkCredentials($credentials, UserInterface $user)
