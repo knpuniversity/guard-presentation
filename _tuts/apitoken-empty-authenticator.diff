@@ -1,8 +1,8 @@
 diff --git a/load.php b/load.php
-index 070504d..e5f747d 100644
+index 6b9c690..3fa9388 100644
 --- a/load.php
 +++ b/load.php
-@@ -12,7 +12,9 @@ $container = $kernel->getContainer();
+@@ -11,7 +11,9 @@ $container = $kernel->getContainer();
  
  $em = $container->get('doctrine.orm.entity_manager');
  

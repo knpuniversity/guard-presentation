@@ -17,16 +17,15 @@ index 5b2a6d9..ffc454b 100644
 +            - '@doctrine.orm.entity_manager'
 diff --git a/load.php b/load.php
 new file mode 100644
-index 0000000..070504d
+index 0000000..6b9c690
 --- /dev/null
 +++ b/load.php
-@@ -0,0 +1,18 @@
+@@ -0,0 +1,17 @@
 +<?php
 +
 +use AppBundle\Entity\User;
 +
 +$loader = require __DIR__.'/app/autoload.php';
-+include_once __DIR__.'/app/bootstrap.php.cache';
 +
 +$kernel = new AppKernel('dev', true);
 +$kernel->boot();

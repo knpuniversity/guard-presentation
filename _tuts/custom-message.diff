@@ -1,23 +1,15 @@
 diff --git a/src/AppBundle/Security/JwtTokenAuthenticator.php b/src/AppBundle/Security/JwtTokenAuthenticator.php
-index 8b9439d..fc155d7 100644
+index fc6ccf1..1bf8999 100644
 --- a/src/AppBundle/Security/JwtTokenAuthenticator.php
 +++ b/src/AppBundle/Security/JwtTokenAuthenticator.php
-@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
- use Symfony\Component\HttpFoundation\Response;
- use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
- use Symfony\Component\Security\Core\Exception\AuthenticationException;
-+use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
- use Symfony\Component\Security\Core\User\UserInterface;
- use Symfony\Component\Security\Core\User\UserProviderInterface;
- use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
-@@ -32,9 +33,17 @@ class JwtTokenAuthenticator extends AbstractGuardAuthenticator
+@@ -49,9 +49,17 @@ class JwtTokenAuthenticator extends AbstractGuardAuthenticator
  
-         $apiToken = $credentials;
+         $username = $data['username'];
  
 -        return $this->em
 +        $user = $this->em
              ->getRepository('AppBundle:User')
-             ->findOneBy(['apiToken' => $apiToken]);
+             ->findOneBy(['username' => $username]);
 +
 +        if (!$user) {
 +            throw new CustomUserMessageAuthenticationException(

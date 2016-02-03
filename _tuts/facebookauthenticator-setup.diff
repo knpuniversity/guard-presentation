@@ -34,12 +34,12 @@ index e98c155..f9ff3e2 100644
              # activate different ways to authenticate
  
 diff --git a/app/config/services.yml b/app/config/services.yml
-index 4c0f791..e4005e1 100644
+index ec3767d..0e5fb90 100644
 --- a/app/config/services.yml
 +++ b/app/config/services.yml
-@@ -10,7 +10,21 @@ services:
-         arguments:
-             - '@doctrine.orm.entity_manager'
+@@ -9,7 +9,21 @@ services:
+         class: AppBundle\Security\JwtTokenAuthenticator
+         autowire: true
  
 +    api_facebook_authenticator:
 +        class: AppBundle\Security\FacebookAuthenticator
@@ -60,10 +60,10 @@ index 4c0f791..e4005e1 100644
 +                graphApiVersion: v2.3
 +                redirectUri: "@=service('router').generate('connect_facebook_check', {}, true)"
 diff --git a/composer.json b/composer.json
-index c7d7d02..23c2abd 100644
+index d6a4718..74e67c7 100644
 --- a/composer.json
 +++ b/composer.json
-@@ -22,7 +22,8 @@
+@@ -21,7 +21,8 @@
          "sensio/distribution-bundle": "^5.0",
          "sensio/framework-extra-bundle": "^3.0.2",
          "incenteev/composer-parameter-handler": "~2.0",
@@ -74,15 +74,15 @@ index c7d7d02..23c2abd 100644
      "require-dev": {
          "sensio/generator-bundle": "^3.0",
 diff --git a/composer.lock b/composer.lock
-index af70065..46971fe 100644
+index 8ac10d5..1215ae2 100644
 --- a/composer.lock
 +++ b/composer.lock
 @@ -4,8 +4,8 @@
          "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
          "This file is @generated automatically"
      ],
--    "hash": "b8bae61cc63070e496ad6f85330d6465",
--    "content-hash": "be8d2333f4205668fcb961d7cde6756a",
+-    "hash": "4290bc888df8abfc438912c6e1d67279",
+-    "content-hash": "6cf466b582aa77e3834af3ec65e5afc8",
 +    "hash": "a48db9594a06f6c538a17b299db615e4",
 +    "content-hash": "653158f72a833917aa6c212ee6bedea0",
      "packages": [

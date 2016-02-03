@@ -13,6 +13,21 @@ index 0000000..20b1412
 +        <button type="submit">Register</button>
 +    {{ form_end(form) }}
 +{% endblock %}
+diff --git a/composer.lock b/composer.lock
+index 1215ae2..7dedac9 100644
+--- a/composer.lock
++++ b/composer.lock
+@@ -4,8 +4,8 @@
+         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+         "This file is @generated automatically"
+     ],
+-    "hash": "a48db9594a06f6c538a17b299db615e4",
+-    "content-hash": "653158f72a833917aa6c212ee6bedea0",
++    "hash": "4290bc888df8abfc438912c6e1d67279",
++    "content-hash": "6cf466b582aa77e3834af3ec65e5afc8",
+     "packages": [
+         {
+             "name": "doctrine/annotations",
 diff --git a/src/AppBundle/Controller/RegistrationController.php b/src/AppBundle/Controller/RegistrationController.php
 new file mode 100644
 index 0000000..e0a97f2

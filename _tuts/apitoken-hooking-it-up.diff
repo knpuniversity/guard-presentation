@@ -10,6 +10,18 @@ index 3a57589..18ed36f 100644
          );
  
          if (in_array($this->getEnvironment(), array('dev', 'test'))) {
+diff --git a/app/config/config.yml b/app/config/config.yml
+index d1c7cae..11a5f5d 100644
+--- a/app/config/config.yml
++++ b/app/config/config.yml
+@@ -67,3 +67,7 @@ swiftmailer:
+     username:  "%mailer_user%"
+     password:  "%mailer_password%"
+     spool:     { type: memory }
++
++lexik_jwt_authentication:
++    private_key_path: %kernel.root_dir%/../var/jwt/private.pem
++    public_key_path:  %kernel.root_dir%/../var/jwt/public.pem
 diff --git a/app/config/security.yml b/app/config/security.yml
 index 2bcb08b..e98c155 100644
 --- a/app/config/security.yml
@@ -27,26 +39,30 @@ index 2bcb08b..e98c155 100644
  
              # http_basic: ~
 diff --git a/app/config/services.yml b/app/config/services.yml
-index ffc454b..4c0f791 100644
+index ffc454b..ec3767d 100644
 --- a/app/config/services.yml
 +++ b/app/config/services.yml
-@@ -5,6 +5,11 @@ services:
+@@ -5,6 +5,10 @@ services:
              - '@router'
              - '@doctrine.orm.entity_manager'
  
 +    jwt_authenticator:
 +        class: AppBundle\Security\JwtTokenAuthenticator
-+        arguments:
-+            - '@doctrine.orm.entity_manager'
++        autowire: true
 +
      spooky_user_provider:
          class: AppBundle\Security\SpookyUserProvider
          arguments:
 diff --git a/composer.json b/composer.json
-index e27a56c..c7d7d02 100644
+index e27a56c..d6a4718 100644
 --- a/composer.json
 +++ b/composer.json
-@@ -21,7 +21,8 @@
+@@ -1,4 +1,3 @@
+-
+ {
+     "name": "symfony/framework-standard-edition",
+     "license": "MIT",
+@@ -21,11 +20,13 @@
          "symfony/monolog-bundle": "^2.8",
          "sensio/distribution-bundle": "^5.0",
          "sensio/framework-extra-bundle": "^3.0.2",
@@ -56,8 +72,14 @@ index e27a56c..c7d7d02 100644
      },
      "require-dev": {
          "sensio/generator-bundle": "^3.0",
+-        "symfony/phpunit-bridge": "^2.7"
++        "symfony/phpunit-bridge": "^2.7",
++        "guzzlehttp/guzzle": "^6.1"
+     },
+     "scripts": {
+         "post-install-cmd": [
 diff --git a/composer.lock b/composer.lock
-index d22bc5a..af70065 100644
+index d22bc5a..8ac10d5 100644
 --- a/composer.lock
 +++ b/composer.lock
 @@ -4,8 +4,8 @@
@@ -66,8 +88,8 @@ index d22bc5a..af70065 100644
      ],
 -    "hash": "0831de291a163e5d46334bf04746861d",
 -    "content-hash": "adcea4b5fa98bd5cd0fef19845850f6d",
-+    "hash": "b8bae61cc63070e496ad6f85330d6465",
-+    "content-hash": "be8d2333f4205668fcb961d7cde6756a",
++    "hash": "4290bc888df8abfc438912c6e1d67279",
++    "content-hash": "6cf466b582aa77e3834af3ec65e5afc8",
      "packages": [
          {
              "name": "doctrine/annotations",
@@ -316,6 +338,233 @@ index d22bc5a..af70065 100644
              "name": "psr/log",
              "version": "1.0.0",
              "source": {
+@@ -1830,6 +2054,226 @@
+     ],
+     "packages-dev": [
+         {
++            "name": "guzzlehttp/guzzle",
++            "version": "6.1.1",
++            "source": {
++                "type": "git",
++                "url": "https://github.com/guzzle/guzzle.git",
++                "reference": "c6851d6e48f63b69357cbfa55bca116448140e0c"
++            },
++            "dist": {
++                "type": "zip",
++                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/c6851d6e48f63b69357cbfa55bca116448140e0c",
++                "reference": "c6851d6e48f63b69357cbfa55bca116448140e0c",
++                "shasum": ""
++            },
++            "require": {
++                "guzzlehttp/promises": "~1.0",
++                "guzzlehttp/psr7": "~1.1",
++                "php": ">=5.5.0"
++            },
++            "require-dev": {
++                "ext-curl": "*",
++                "phpunit/phpunit": "~4.0",
++                "psr/log": "~1.0"
++            },
++            "type": "library",
++            "extra": {
++                "branch-alias": {
++                    "dev-master": "6.1-dev"
++                }
++            },
++            "autoload": {
++                "files": [
++                    "src/functions_include.php"
++                ],
++                "psr-4": {
++                    "GuzzleHttp\\": "src/"
++                }
++            },
++            "notification-url": "https://packagist.org/downloads/",
++            "license": [
++                "MIT"
++            ],
++            "authors": [
++                {
++                    "name": "Michael Dowling",
++                    "email": "mtdowling@gmail.com",
++                    "homepage": "https://github.com/mtdowling"
++                }
++            ],
++            "description": "Guzzle is a PHP HTTP client library",
++            "homepage": "http://guzzlephp.org/",
++            "keywords": [
++                "client",
++                "curl",
++                "framework",
++                "http",
++                "http client",
++                "rest",
++                "web service"
++            ],
++            "time": "2015-11-23 00:47:50"
++        },
++        {
++            "name": "guzzlehttp/promises",
++            "version": "1.0.3",
++            "source": {
++                "type": "git",
++                "url": "https://github.com/guzzle/promises.git",
++                "reference": "b1e1c0d55f8083c71eda2c28c12a228d708294ea"
++            },
++            "dist": {
++                "type": "zip",
++                "url": "https://api.github.com/repos/guzzle/promises/zipball/b1e1c0d55f8083c71eda2c28c12a228d708294ea",
++                "reference": "b1e1c0d55f8083c71eda2c28c12a228d708294ea",
++                "shasum": ""
++            },
++            "require": {
++                "php": ">=5.5.0"
++            },
++            "require-dev": {
++                "phpunit/phpunit": "~4.0"
++            },
++            "type": "library",
++            "extra": {
++                "branch-alias": {
++                    "dev-master": "1.0-dev"
++                }
++            },
++            "autoload": {
++                "psr-4": {
++                    "GuzzleHttp\\Promise\\": "src/"
++                },
++                "files": [
++                    "src/functions_include.php"
++                ]
++            },
++            "notification-url": "https://packagist.org/downloads/",
++            "license": [
++                "MIT"
++            ],
++            "authors": [
++                {
++                    "name": "Michael Dowling",
++                    "email": "mtdowling@gmail.com",
++                    "homepage": "https://github.com/mtdowling"
++                }
++            ],
++            "description": "Guzzle promises library",
++            "keywords": [
++                "promise"
++            ],
++            "time": "2015-10-15 22:28:00"
++        },
++        {
++            "name": "guzzlehttp/psr7",
++            "version": "1.2.2",
++            "source": {
++                "type": "git",
++                "url": "https://github.com/guzzle/psr7.git",
++                "reference": "f5d04bdd2881ac89abde1fb78cc234bce24327bb"
++            },
++            "dist": {
++                "type": "zip",
++                "url": "https://api.github.com/repos/guzzle/psr7/zipball/f5d04bdd2881ac89abde1fb78cc234bce24327bb",
++                "reference": "f5d04bdd2881ac89abde1fb78cc234bce24327bb",
++                "shasum": ""
++            },
++            "require": {
++                "php": ">=5.4.0",
++                "psr/http-message": "~1.0"
++            },
++            "provide": {
++                "psr/http-message-implementation": "1.0"
++            },
++            "require-dev": {
++                "phpunit/phpunit": "~4.0"
++            },
++            "type": "library",
++            "extra": {
++                "branch-alias": {
++                    "dev-master": "1.0-dev"
++                }
++            },
++            "autoload": {
++                "psr-4": {
++                    "GuzzleHttp\\Psr7\\": "src/"
++                },
++                "files": [
++                    "src/functions_include.php"
++                ]
++            },
++            "notification-url": "https://packagist.org/downloads/",
++            "license": [
++                "MIT"
++            ],
++            "authors": [
++                {
++                    "name": "Michael Dowling",
++                    "email": "mtdowling@gmail.com",
++                    "homepage": "https://github.com/mtdowling"
++                }
++            ],
++            "description": "PSR-7 message implementation",
++            "keywords": [
++                "http",
++                "message",
++                "stream",
++                "uri"
++            ],
++            "time": "2016-01-23 01:23:02"
++        },
++        {
++            "name": "psr/http-message",
++            "version": "1.0",
++            "source": {
++                "type": "git",
++                "url": "https://github.com/php-fig/http-message.git",
++                "reference": "85d63699f0dbedb190bbd4b0d2b9dc707ea4c298"
++            },
++            "dist": {
++                "type": "zip",
++                "url": "https://api.github.com/repos/php-fig/http-message/zipball/85d63699f0dbedb190bbd4b0d2b9dc707ea4c298",
++                "reference": "85d63699f0dbedb190bbd4b0d2b9dc707ea4c298",
++                "shasum": ""
++            },
++            "require": {
++                "php": ">=5.3.0"
++            },
++            "type": "library",
++            "extra": {
++                "branch-alias": {
++                    "dev-master": "1.0.x-dev"
++                }
++            },
++            "autoload": {
++                "psr-4": {
++                    "Psr\\Http\\Message\\": "src/"
++                }
++            },
++            "notification-url": "https://packagist.org/downloads/",
++            "license": [
++                "MIT"
++            ],
++            "authors": [
++                {
++                    "name": "PHP-FIG",
++                    "homepage": "http://www.php-fig.org/"
++                }
++            ],
++            "description": "Common interface for HTTP messages",
++            "keywords": [
++                "http",
++                "http-message",
++                "psr",
++                "psr-7",
++                "request",
++                "response"
++            ],
++            "time": "2015-05-04 20:22:00"
++        },
++        {
+             "name": "sensio/generator-bundle",
+             "version": "v3.0.5",
+             "source": {
 diff --git a/src/AppBundle/Controller/DefaultController.php b/src/AppBundle/Controller/DefaultController.php
 index 22eee9c..a7dea1b 100644
 --- a/src/AppBundle/Controller/DefaultController.php
@@ -339,22 +588,80 @@ index 22eee9c..a7dea1b 100644
          return $this->render('default/secure.html.twig');
      }
  }
+diff --git a/src/AppBundle/Controller/SecurityController.php b/src/AppBundle/Controller/SecurityController.php
+index fba81ec..29041f1 100644
+--- a/src/AppBundle/Controller/SecurityController.php
++++ b/src/AppBundle/Controller/SecurityController.php
+@@ -2,8 +2,10 @@
+ 
+ namespace AppBundle\Controller;
+ 
++use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
++use Symfony\Component\HttpFoundation\JsonResponse;
+ use Symfony\Component\HttpFoundation\Request;
+ 
+ class SecurityController extends Controller
+@@ -35,4 +37,28 @@ class SecurityController extends Controller
+     {
+ 
+     }
++
++    /**
++     * @Route("/token")
++     * @Method("POST")
++     */
++    public function fetchToken(Request $request)
++    {
++        $username = $request->request->get('username');
++        $password = $request->request->get('password');
++
++        $user = $this->getDoctrine()
++            ->getRepository('AppBundle:User')
++            ->findOneBy(['username' => $username]);
++        if (!$user) {
++            throw $this->createNotFoundException();
++        }
++
++        // check password
++
++        $token = $this->get('lexik_jwt_authentication.encoder')
++            ->encode(['username' => $user->getUsername()]);
++
++        return new JsonResponse(['token' => $token]);
++    }
+ }
+diff --git a/src/AppBundle/Security/FormLoginAuthenticator.php b/src/AppBundle/Security/FormLoginAuthenticator.php
+index 1a19694..d268fde 100644
+--- a/src/AppBundle/Security/FormLoginAuthenticator.php
++++ b/src/AppBundle/Security/FormLoginAuthenticator.php
+@@ -68,6 +68,4 @@ class FormLoginAuthenticator extends AbstractFormLoginAuthenticator
+     {
+         return $this->router->generate('homepage');
+     }
+-
+-
+ }
 diff --git a/src/AppBundle/Security/JwtTokenAuthenticator.php b/src/AppBundle/Security/JwtTokenAuthenticator.php
 new file mode 100644
-index 0000000..8b9439d
+index 0000000..fc6ccf1
 --- /dev/null
 +++ b/src/AppBundle/Security/JwtTokenAuthenticator.php
-@@ -0,0 +1,67 @@
+@@ -0,0 +1,83 @@
 +<?php
 +
 +namespace AppBundle\Security;
 +
 +use Doctrine\ORM\EntityManager;
++use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoder;
++use Lexik\Bundle\JWTAuthenticationBundle\TokenExtractor\AuthorizationHeaderTokenExtractor;
 +use Symfony\Component\HttpFoundation\JsonResponse;
 +use Symfony\Component\HttpFoundation\Request;
 +use Symfony\Component\HttpFoundation\Response;
 +use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 +use Symfony\Component\Security\Core\Exception\AuthenticationException;
++use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 +use Symfony\Component\Security\Core\User\UserInterface;
 +use Symfony\Component\Security\Core\User\UserProviderInterface;
 +use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
@@ -362,32 +669,45 @@ index 0000000..8b9439d
 +class JwtTokenAuthenticator extends AbstractGuardAuthenticator
 +{
 +    private $em;
++    private $jwtEncoder;
 +
-+    public function __construct(EntityManager $em)
++    public function __construct(EntityManager $em, JWTEncoder $jwtEncoder)
 +    {
 +        $this->em = $em;
++        $this->jwtEncoder = $jwtEncoder;
 +    }
 +
 +    public function getCredentials(Request $request)
 +    {
-+        return $request->headers->get('X-API-TOKEN');
++        $extractor = new AuthorizationHeaderTokenExtractor('Bearer', 'Authorization');
++
++        $token = $extractor->extract($request);
++
++        if (!$token) {
++            return;
++        }
++
++        return $token;
 +    }
 +
 +    public function getUser($credentials, UserProviderInterface $userProvider)
 +    {
++        $data = $this->jwtEncoder->decode($credentials);
 +
++        if ($data === false) {
++            throw new CustomUserMessageAuthenticationException('Invalid Token');
++        }
 +
-+        $apiToken = $credentials;
++        $username = $data['username'];
 +
 +        return $this->em
 +            ->getRepository('AppBundle:User')
-+            ->findOneBy(['apiToken' => $apiToken]);
++            ->findOneBy(['username' => $username]);
 +    }
 +
 +    public function checkCredentials($credentials, UserInterface $user)
 +    {
-+        // no credentials to check
-+        return;
++        return true;
 +    }
 +
 +    public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
