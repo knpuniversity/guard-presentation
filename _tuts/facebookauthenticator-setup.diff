@@ -927,7 +927,7 @@ index 0000000..83cb403
 \ No newline at end of file
 diff --git a/src/AppBundle/Security/FacebookAuthenticator.php b/src/AppBundle/Security/FacebookAuthenticator.php
 new file mode 100644
-index 0000000..c129bab
+index 0000000..a4c86db
 --- /dev/null
 +++ b/src/AppBundle/Security/FacebookAuthenticator.php
 @@ -0,0 +1,122 @@
@@ -979,7 +979,7 @@ index 0000000..c129bab
 +        }
 +
 +        try {
-+            return $this->oAuth2Client->getAccessToken();
++            return $this->oAuth2Client->getAccessToken($request);
 +        } catch (IdentityProviderException $e) {
 +            // you could parse the response to see the problem
 +
