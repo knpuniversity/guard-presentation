@@ -1,6 +1,10 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
+    {% if error %}
+        {{ error.messageKey }}
+    {% endif %}
+
     <form action="{{ path('security_login_check') }}" method="post">
         <div>
             <label for="username">Username</label>
