@@ -1,8 +1,8 @@
-diff --git a/src/AppBundle/Security/JwtTokenAuthenticator.php b/src/AppBundle/Security/JwtTokenAuthenticator.php
-index fc6ccf1..1bf8999 100644
---- a/src/AppBundle/Security/JwtTokenAuthenticator.php
-+++ b/src/AppBundle/Security/JwtTokenAuthenticator.php
-@@ -49,9 +49,17 @@ class JwtTokenAuthenticator extends AbstractGuardAuthenticator
+diff --git a/src/AppBundle/Security/JwtAuthenticator.php b/src/AppBundle/Security/JwtAuthenticator.php
+index 5a03107..2ecb83f 100644
+--- a/src/AppBundle/Security/JwtAuthenticator.php
++++ b/src/AppBundle/Security/JwtAuthenticator.php
+@@ -49,9 +49,17 @@ class JwtAuthenticator extends AbstractGuardAuthenticator
  
          $username = $data['username'];
  

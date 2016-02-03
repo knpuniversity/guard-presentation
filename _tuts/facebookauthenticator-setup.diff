@@ -66,11 +66,11 @@ index e98c155..f9ff3e2 100644
              # activate different ways to authenticate
  
 diff --git a/app/config/services.yml b/app/config/services.yml
-index 805eab7..05d457d 100644
+index 2e03f4d..58235aa 100644
 --- a/app/config/services.yml
 +++ b/app/config/services.yml
 @@ -7,6 +7,10 @@ services:
-         class: AppBundle\Security\JwtTokenAuthenticator
+         class: AppBundle\Security\JwtAuthenticator
          autowire: true
  
 +    api_facebook_authenticator:
